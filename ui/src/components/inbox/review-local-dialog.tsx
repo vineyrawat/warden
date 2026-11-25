@@ -128,7 +128,7 @@ export function ReviewLocalDialog({
               </Button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="local-base">Base branch</Label>
               <Input id="local-base" list="local-base-options" value={baseRef} onChange={(e) => setBaseRef(e.target.value)} required />
