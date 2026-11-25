@@ -70,6 +70,7 @@ pub fn run() {
     init_logging();
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let (state, queue_rx, poll_rx) = tauri::async_runtime::block_on(state::init())
                 .map_err(|e| Box::new(std::io::Error::other(e.to_string())))?;

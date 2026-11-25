@@ -68,6 +68,9 @@ pub struct AppState {
     pub forge_checks: Mutex<HashMap<String, ForgeCheck>>,
     /// Diff files of finished runs (run id -> files) so `get_run` does not re-diff every time.
     pub files_cache: Mutex<HashMap<i64, Vec<FileDiff>>>,
+    /// Set once the "hourly limit reached" notice was shown; cleared when a review runs again.
+    /// Every deferred run retries on a timer, so without this the notice repeats endlessly.
+    pub limit_notice_shown: std::sync::atomic::AtomicBool,
 }
 
 pub type Shared = Arc<AppState>;
@@ -194,10 +197,13 @@ impl AppState {
         };
         match self.pipeline.execute_queued(run_id, provider).await {
             Ok(ExecOutcome::Deferred) => {
-                self.notice(
-                    "info",
-                    "Hourly review limit reached; queued review will start later",
-                );
+                use std::sync::atomic::Ordering;
+                if !self.limit_notice_shown.swap(true, Ordering::SeqCst) {
+                    self.notice(
+                        "info",
+                        "Hourly review limit reached. Queued reviews start automatically as the limit frees up.",
+                    );
+                }
                 let tx = self.queue_tx.clone();
                 tokio::spawn(async move {
                     tokio::time::sleep(DEFER_RETRY).await;
@@ -205,6 +211,8 @@ impl AppState {
                 });
             }
             Ok(ExecOutcome::Finished(run)) => {
+                self.limit_notice_shown
+                    .store(false, std::sync::atomic::Ordering::SeqCst);
                 tracing::info!("run {} finished with status {}", run.id, run.status);
             }
             Err(e) => {
@@ -324,6 +332,7 @@ pub async fn init() -> Result<(
         poll_tx,
         forge_checks: Mutex::new(HashMap::new()),
         files_cache: Mutex::new(HashMap::new()),
+        limit_notice_shown: std::sync::atomic::AtomicBool::new(false),
     });
     Ok((state, queue_rx, poll_rx))
 }

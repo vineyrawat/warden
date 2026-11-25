@@ -10,6 +10,9 @@ import "./index.css";
 import App from "./App";
 import { SettingsApp } from "./screens/Settings";
 import { settingsRouteFromSearch } from "./lib/nav";
+import { installExternalLinkHandler } from "./lib/external-links";
+
+installExternalLinkHandler();
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } },
