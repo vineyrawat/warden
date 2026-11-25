@@ -16,6 +16,8 @@ import type { AddProjectItem } from "@/bindings/AddProjectItem";
 import type { AddProjectResult } from "@/bindings/AddProjectResult";
 import type { AppEvent } from "@/bindings/AppEvent";
 import type { Discovery } from "@/bindings/Discovery";
+import type { RuleConfig } from "@/bindings/RuleConfig";
+import type { RuleTestResult } from "@/bindings/RuleTestResult";
 import type { OpenMrResult } from "@/bindings/OpenMrResult";
 import type { PendingFinding } from "@/bindings/PendingFinding";
 import type { RuleStat } from "@/bindings/RuleStat";
@@ -132,6 +134,10 @@ export const list_projects = () => call<Project[]>("list_projects");
 export const save_project = (project: Project) => call<number>("save_project", { project });
 export const delete_project = (id: number) => call<void>("delete_project", { id });
 export const get_project_config = (id: number) => call<MergedConfig>("get_project_config", { id });
+/** Lines of pasted code a pattern rule matches (rule editor test box). */
+export const test_rule_pattern = (pattern: string, code: string) => call<RuleTestResult>("test_rule_pattern", { pattern, code });
+/** What an unsaved rule would flag in a past run's diff (read-only). */
+export const test_rule_on_run = (rule: RuleConfig, runId: number) => call<RuleTestResult>("test_rule_on_run", { rule, runId });
 /** Stored local overrides only (not merged with `.warden.yml`). */
 export const get_project_overrides = (id: number) => call<ProjectOverrides>("get_project_overrides", { id });
 export const save_project_overrides = (id: number, overrides: ProjectOverrides) =>
@@ -205,6 +211,8 @@ export const api = {
   delete_project,
   get_project_config,
   get_project_overrides,
+  test_rule_pattern,
+  test_rule_on_run,
   save_project_overrides,
   poll_now,
   list_mrs,

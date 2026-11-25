@@ -170,3 +170,40 @@ describe("patchOverrides", () => {
     expect(out).toEqual({ posting: { summary_note: false }, review: { min_confidence: 0.8 } });
   });
 });
+
+describe("custom rules", () => {
+  const rule = (id: string, extra: Record<string, unknown> = {}) =>
+    ({ id, title: id, applies_to: null, instruction: null, pattern: null, semgrep: null, severity: "major", ...extra }) as never;
+
+  it("picks the next free CR id", async () => {
+    const { nextCustomId } = await import("./logic");
+    expect(nextCustomId(["FR-001", "CR-001", "cr-002"])).toBe("CR-003");
+    expect(nextCustomId([])).toBe("CR-001");
+  });
+
+  it("writes a full custom rule but only a patch for repo rules", async () => {
+    const { withRule, withoutRule, ruleOrigin } = await import("./logic");
+    const custom = rule("CR-001", { title: "No print", pattern: "^\\s*print\\(", severity: "minor" });
+    const a = withRule({ disabled_rules: ["FR-007"] }, custom, null) as Record<string, any>;
+    expect(a.disabled_rules).toEqual(["FR-007"]);
+    expect(a.rules["CR-001"]).toMatchObject({ title: "No print", pattern: "^\\s*print\\(", severity: "minor" });
+    expect(ruleOrigin(custom, a)).toBe("custom");
+
+    const base = rule("FR-001", { instruction: "check perms" });
+    const b = withRule(a, { ...(base as object), severity: "blocker", applies_to: "api/**" } as never, base) as Record<string, any>;
+    expect(b.rules["FR-001"]).toEqual({ severity: "blocker", applies_to: "api/**" });
+    expect(ruleOrigin(base, b)).toBe("edited");
+    expect(withRule(b, base, base).rules).not.toHaveProperty("FR-001");
+    expect((withoutRule(b, "CR-001") as Record<string, any>).rules).not.toHaveProperty("CR-001");
+  });
+
+  it("exports custom rules as a .warden.yml block", async () => {
+    const { rulesToYaml } = await import("./logic");
+    const yaml = rulesToYaml([rule("CR-001", { title: "No print()", pattern: "^\\s*print\\(", applies_to: "**/*.py", severity: "minor" })]);
+    expect(yaml).toContain("rules:\n  - id: CR-001\n");
+    expect(yaml).toContain('    title: "No print()"');
+    expect(yaml).toContain("    applies_to: **/*.py");
+    expect(yaml).toContain('    pattern: "^\\\\s*print\\\\("');
+    expect(yaml).toContain("    severity: minor");
+  });
+});

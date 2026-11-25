@@ -23,6 +23,8 @@ export type Draft = {
   focus: string[];
   ignorePaths: string[];
   disabled: string[];
+  /** Free text appended to every review prompt (`review.extra_instructions`). */
+  extraInstructions: string;
 };
 
 export function draftFrom(cfg: MergedConfig, projectMode?: PostingMode | null): Draft {
@@ -39,6 +41,7 @@ export function draftFrom(cfg: MergedConfig, projectMode?: PostingMode | null): 
     focus: [...cfg.review.focus],
     ignorePaths: [...cfg.review.ignore_paths],
     disabled: [...(cfg.disabled_rules ?? [])].sort(),
+    extraInstructions: cfg.review.extra_instructions ?? "",
   };
 }
 
@@ -62,6 +65,7 @@ export function overridesFromDraft(d: Draft, cfg: MergedConfig): ProjectOverride
       nits: d.nits,
       focus: [...d.focus],
       ignore_paths: [...d.ignorePaths],
+      extra_instructions: d.extraInstructions,
     },
     posting: {
       mode: d.mode,
@@ -99,6 +103,7 @@ export function patchOverrides(stored: ProjectOverrides | null | undefined, d: D
     focus: () => (section("review").focus = fr.focus),
     ignorePaths: () => (section("review").ignore_paths = fr.ignore_paths),
     rules: () => (out.disabled_rules = full.disabled_rules),
+    extraInstructions: () => (section("review").extra_instructions = fr.extra_instructions),
   };
   keys.forEach((k) => map[k]?.());
   return out as ProjectOverrides;
@@ -127,6 +132,8 @@ export function diffDraft(saved: Draft, draft: Draft): Change[] {
   if (!sameList(saved.focus, draft.focus)) out.push({ key: "focus", label: "Focus areas", from: fmtList(saved.focus), to: fmtList(draft.focus) });
   if (!sameList(saved.ignorePaths, draft.ignorePaths))
     out.push({ key: "ignorePaths", label: "Ignored paths", from: fmtList(saved.ignorePaths), to: fmtList(draft.ignorePaths) });
+  if (saved.extraInstructions.trim() !== draft.extraInstructions.trim())
+    out.push({ key: "extraInstructions", label: "Review instructions", from: saved.extraInstructions.trim() ? "set" : "none", to: draft.extraInstructions.trim() ? "edited" : "none" });
   const was = new Set(saved.disabled);
   const now = new Set(draft.disabled);
   for (const id of [...now].filter((x) => !was.has(x)).sort()) out.push({ key: `rule:${id}`, label: id, from: "on", to: "off" });
@@ -301,4 +308,78 @@ export function sortSimRows(rows: SimulatedFinding[]): SimulatedFinding[] {
       b.finding.confidence - a.finding.confidence ||
       a.finding.id - b.finding.id,
   );
+}
+
+// ---- custom rules (rule editor) ---------------------------------------------------------------
+
+/** Stored rule overrides keyed by id (`overrides.rules`), or {} when none. */
+export function storedRules(stored: ProjectOverrides | null | undefined): Record<string, Partial<RuleConfig> | null> {
+  const r = (stored as { rules?: unknown } | null | undefined)?.rules;
+  return r && typeof r === "object" && !Array.isArray(r) ? (r as Record<string, Partial<RuleConfig> | null>) : {};
+}
+
+export type RuleOrigin = RuleSource | "custom" | "edited";
+
+/** "custom" = added in Warden; "edited" = a repo/built-in rule with a local patch; else its source. */
+export function ruleOrigin(r: RuleConfig, stored: ProjectOverrides | null | undefined): RuleOrigin {
+  const own = storedRules(stored)[r.id];
+  if (own && typeof own.title === "string" && (own.instruction != null || own.pattern != null || own.semgrep != null)) return "custom";
+  if (own) return "edited";
+  return ruleSource(r);
+}
+
+export function originLabel(o: RuleOrigin): string {
+  return o === "custom" ? "custom" : o === "edited" ? "edited" : ruleSourceLabel(o);
+}
+
+/** Next free id like CR-003. */
+export function nextCustomId(existing: string[]): string {
+  const used = new Set(existing.map((x) => x.toUpperCase()));
+  for (let n = 1; n < 1000; n++) {
+    const id = `CR-${String(n).padStart(3, "0")}`;
+    if (!used.has(id)) return id;
+  }
+  return `CR-${Date.now() % 100000}`;
+}
+
+/** Overrides with one rule written (custom: full rule; repo/built-in: only the edited fields). */
+export function withRule(stored: ProjectOverrides | null | undefined, rule: RuleConfig, base: RuleConfig | null): ProjectOverrides {
+  const out = JSON.parse(JSON.stringify(stored ?? {})) as Record<string, unknown>;
+  const rules = { ...storedRules(stored) } as Record<string, unknown>;
+  if (!base) {
+    rules[rule.id] = { title: rule.title, applies_to: rule.applies_to, instruction: rule.instruction, pattern: rule.pattern, semgrep: rule.semgrep, severity: rule.severity };
+  } else {
+    const patch: Record<string, unknown> = {};
+    if (rule.severity !== base.severity) patch.severity = rule.severity;
+    if ((rule.applies_to ?? "") !== (base.applies_to ?? "")) patch.applies_to = rule.applies_to || null;
+    if (Object.keys(patch).length) rules[rule.id] = patch;
+    else delete rules[rule.id];
+  }
+  out.rules = rules;
+  return out as ProjectOverrides;
+}
+
+/** Overrides without the local entry for `id` (deletes a custom rule, resets an edited one). */
+export function withoutRule(stored: ProjectOverrides | null | undefined, id: string): ProjectOverrides {
+  const out = JSON.parse(JSON.stringify(stored ?? {})) as Record<string, unknown>;
+  const rules = { ...storedRules(stored) } as Record<string, unknown>;
+  delete rules[id];
+  out.rules = rules;
+  return out as ProjectOverrides;
+}
+
+const yamlStr = (s: string) => (/^[\w./*-]+$/.test(s) && !/^(true|false|null|yes|no)$/i.test(s) ? s : JSON.stringify(s));
+
+/** The given rules as a `.warden.yml` `rules:` block, ready to paste and commit. */
+export function rulesToYaml(rules: RuleConfig[]): string {
+  const lines = ["rules:"];
+  for (const r of rules) {
+    lines.push(`  - id: ${yamlStr(r.id)}`, `    title: ${yamlStr(r.title)}`);
+    if (r.applies_to) lines.push(`    applies_to: ${yamlStr(r.applies_to)}`);
+    if (r.instruction) lines.push(`    instruction: ${JSON.stringify(r.instruction)}`);
+    if (r.pattern) lines.push(`    pattern: ${JSON.stringify(r.pattern)}`);
+    if (r.semgrep) lines.push(`    semgrep: ${yamlStr(r.semgrep)}`);
+    lines.push(`    severity: ${r.severity}`);
+  }
+  return lines.join("\n") + "\n";
 }

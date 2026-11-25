@@ -1,8 +1,11 @@
 // Rules tab (8B): rule catalogue with kind, source, severity, on/off switch and 30-day hit stats.
 import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Copy, CopyPlus, Pencil, Plus, Search } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -13,13 +16,16 @@ import type { RuleConfig } from "@/bindings/RuleConfig";
 import type { RuleKind } from "@/bindings/RuleKind";
 import type { RuleStat } from "@/bindings/RuleStat";
 import type { SimulatedFinding } from "@/bindings/SimulatedFinding";
+import * as api from "@/lib/api";
 import { formatRelative, ruleKind } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { NOISY_RATE, dismissedRate, filterRules, ruleAdvice, ruleCatches, ruleSource, ruleSourceLabel, unmatchedStats, type RuleFilter, type RuleSource } from "./logic";
+import { NOISY_RATE, dismissedRate, filterRules, originLabel, ruleAdvice, ruleCatches, ruleOrigin, ruleSource, rulesToYaml, unmatchedStats, type RuleFilter, type RuleOrigin } from "./logic";
+import { RuleEditor, overridesKey, type EditorTarget } from "./rule-editor";
 
 export const STATS_DAYS = 30;
 
 export function RulesTab({
+  projectId,
   rules,
   disabled,
   onToggle,
@@ -28,6 +34,7 @@ export function RulesTab({
   recent,
   branch,
 }: {
+  projectId: number;
   rules: RuleConfig[];
   disabled: string[];
   onToggle: (id: string, on: boolean) => void;
@@ -38,6 +45,10 @@ export function RulesTab({
   branch: string;
 }) {
   const [filter, setFilter] = useState<RuleFilter>({ kind: "all", source: "all", query: "" });
+  const [origin, setOrigin] = useState<RuleOrigin | "all">("all");
+  const [editing, setEditing] = useState<EditorTarget | null>(null);
+  const stored = useQuery({ queryKey: overridesKey(projectId), queryFn: () => api.get_project_overrides(projectId) });
+  const originOf = (r: RuleConfig) => ruleOrigin(r, stored.data);
   const statById = useMemo(() => new Map((stats ?? []).map((s) => [s.rule_id, s])), [stats]);
   const filesByRule = useMemo(() => {
     const m = new Map<string, string[]>();
@@ -48,10 +59,20 @@ export function RulesTab({
     }
     return m;
   }, [recent]);
-  const shown = filterRules(rules, filter);
+  const shown = filterRules(rules, filter).filter((r) => origin === "all" || originOf(r) === origin);
+  const custom = rules.filter((r) => originOf(r) === "custom");
+  const copyYaml = async () => {
+    const yaml = rulesToYaml(custom);
+    try {
+      await navigator.clipboard.writeText(yaml);
+      toast.success(`Copied ${custom.length} ${custom.length === 1 ? "rule" : "rules"} as .warden.yml`);
+    } catch {
+      toast.error("Could not copy to the clipboard");
+    }
+  };
   const advice = rules.map((r) => ruleAdvice(r, statById.get(r.id), filesByRule.get(r.id))).filter((a): a is string => !!a);
   const other = unmatchedStats(stats ?? [], rules);
-  const repoCount = rules.filter((r) => ruleSource(r) === "repo").length;
+  const repoCount = rules.filter((r) => originOf(r) === "repo" || (originOf(r) === "edited" && ruleSource(r) === "repo")).length;
 
   return (
     <div className="grid gap-3">
@@ -67,12 +88,14 @@ export function RulesTab({
             { value: "semgrep", label: "semgrep" },
           ]}
         />
-        <Select value={filter.source} onValueChange={(v) => setFilter({ ...filter, source: v as RuleSource | "all" })}>
+        <Select value={origin} onValueChange={(v) => setOrigin(v as RuleOrigin | "all")}>
           <SelectTrigger className="h-7 w-[150px]" aria-label="Rule source">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All sources</SelectItem>
+            <SelectItem value="custom">Custom (this app)</SelectItem>
+            <SelectItem value="edited">Edited here</SelectItem>
             <SelectItem value="repo">.warden.yml</SelectItem>
             <SelectItem value="builtin">Built-in</SelectItem>
           </SelectContent>
@@ -81,9 +104,18 @@ export function RulesTab({
           <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden />
           <Input className="h-7 w-48 pl-7 text-xs" placeholder="Search rules" aria-label="Search rules" value={filter.query} onChange={(e) => setFilter({ ...filter, query: e.target.value })} />
         </div>
+        {custom.length > 0 && (
+          <Button size="sm" onClick={copyYaml} title="Copy your custom rules as a .warden.yml rules block to commit for the team">
+            <Copy /> Copy as .warden.yml
+          </Button>
+        )}
+        <Button size="sm" variant="default" onClick={() => setEditing({ rule: null, origin: null })}>
+          <Plus /> New rule
+        </Button>
       </div>
       <p className="text-2xs text-muted-foreground">
-        {repoCount > 0 ? `${repoCount} of ${rules.length} rules come from .warden.yml on ${branch}` : `No rules in .warden.yml on ${branch}; using the built-in set`} · hits from the last {STATS_DAYS} days ·
+        {repoCount > 0 ? `${repoCount} of ${rules.length} rules come from .warden.yml on ${branch}` : `No rules in .warden.yml on ${branch}; using the built-in set`}
+        {custom.length > 0 && ` · ${custom.length} added here`} · hits from the last {STATS_DAYS} days ·
         regex and semgrep rules are deterministic and cost nothing; Claude rules become instructions it must cite.
       </p>
 
@@ -95,7 +127,7 @@ export function RulesTab({
               <span>{a}</span>
             </div>
           ))}
-          <div className="pl-[15px] text-2xs text-muted-foreground">Change a rule's severity or scope in .warden.yml on {branch}.</div>
+          <div className="pl-[15px] text-2xs text-muted-foreground">Use Edit on the rule to change its severity or the files it applies to.</div>
         </div>
       )}
 
@@ -106,10 +138,22 @@ export function RulesTab({
       ) : (
         <div className="grid gap-2.5 @2xl:grid-cols-2">
           {shown.map((r) => (
-            <RuleCard key={r.id} rule={r} on={!disabled.includes(r.id)} onToggle={(v) => onToggle(r.id, v)} stat={statById.get(r.id)} statsLoading={statsLoading} />
+            <RuleCard
+              key={r.id}
+              rule={r}
+              origin={originOf(r)}
+              on={!disabled.includes(r.id)}
+              onToggle={(v) => onToggle(r.id, v)}
+              onEdit={() => setEditing({ rule: r, origin: originOf(r) })}
+              onDuplicate={() => setEditing({ rule: r, origin: originOf(r), duplicate: true })}
+              stat={statById.get(r.id)}
+              statsLoading={statsLoading}
+            />
           ))}
         </div>
       )}
+
+      <RuleEditor projectId={projectId} target={editing} onClose={() => setEditing(null)} existingIds={rules.map((r) => r.id)} />
 
       {other.length > 0 && (
         <section className="rounded-lg border bg-card px-3.5 py-3">
@@ -130,8 +174,25 @@ export function RulesTab({
   );
 }
 
-function RuleCard({ rule: r, on, onToggle, stat, statsLoading }: { rule: RuleConfig; on: boolean; onToggle: (v: boolean) => void; stat: RuleStat | undefined; statsLoading: boolean }) {
-  const source = ruleSource(r);
+function RuleCard({
+  rule: r,
+  origin,
+  on,
+  onToggle,
+  onEdit,
+  onDuplicate,
+  stat,
+  statsLoading,
+}: {
+  rule: RuleConfig;
+  origin: RuleOrigin;
+  on: boolean;
+  onToggle: (v: boolean) => void;
+  onEdit: () => void;
+  onDuplicate: () => void;
+  stat: RuleStat | undefined;
+  statsLoading: boolean;
+}) {
   const catches = ruleCatches(r);
   return (
     <article className={cn("flex min-w-0 flex-col gap-1.5 rounded-lg border bg-card px-3 py-2.5", !on && "opacity-60")} aria-label={`Rule ${r.id}`}>
@@ -139,6 +200,16 @@ function RuleCard({ rule: r, on, onToggle, stat, statsLoading }: { rule: RuleCon
         <b className="font-mono text-xs">{r.id}</b>
         <SeverityPill severity={r.severity} />
         <span className="flex-1" />
+        <Tip content={origin === "custom" ? "Edit" : "Change severity or files"}>
+          <Button size="icon" variant="ghost" className="h-6 w-6" aria-label={`Edit rule ${r.id}`} onClick={onEdit}>
+            <Pencil />
+          </Button>
+        </Tip>
+        <Tip content="Duplicate as a new custom rule">
+          <Button size="icon" variant="ghost" className="h-6 w-6" aria-label={`Duplicate rule ${r.id}`} onClick={onDuplicate}>
+            <CopyPlus />
+          </Button>
+        </Tip>
         <Switch checked={on} onCheckedChange={onToggle} aria-label={`${on ? "Disable" : "Enable"} rule ${r.id}`} />
       </div>
       <div className="text-[12.5px] font-medium leading-snug">{r.title}</div>
@@ -149,10 +220,20 @@ function RuleCard({ rule: r, on, onToggle, stat, statsLoading }: { rule: RuleCon
       )}
       <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-0.5">
         <RuleKindPill kind={ruleKind(r)} />
-        <Tip content={source === "repo" ? "Defined in .warden.yml on the target branch" : "Warden's built-in Frappe rule set"}>
+        <Tip
+          content={
+            origin === "custom"
+              ? "Added in Warden for this project (local override)"
+              : origin === "edited"
+                ? `From ${ruleSource(r) === "repo" ? ".warden.yml" : "the built-in set"}, with a local change`
+                : origin === "repo"
+                  ? "Defined in .warden.yml on the target branch"
+                  : "Warden's built-in Frappe rule set"
+          }
+        >
           <span tabIndex={0} className="rounded-full">
-            <Badge tone="outline" className="font-mono font-medium">
-              {ruleSourceLabel(source)}
+            <Badge tone={origin === "custom" ? "blue" : "outline"} className="font-mono font-medium">
+              {originLabel(origin)}
             </Badge>
           </span>
         </Tip>

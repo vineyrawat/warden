@@ -28,6 +28,10 @@ your guardrails.
 - **Guardrails:** findings must point at a changed line, clear a confidence and severity floor, fit a
   note budget, and not repeat an open thread. Secrets are redacted. A live preview shows which recent
   findings would post, wait for approval or be dropped as you change a setting.
+- **Custom rules in the app:** add your own rules per project: a plain-English instruction for
+  Claude, a regex run on added lines, or a semgrep file. Test a pattern on pasted code or on a recent
+  MR's diff before saving, change the severity or scope of built-in and `.warden.yml` rules, add
+  review instructions, and copy your rules as a `.warden.yml` block to commit for the team.
 - **Posting modes:** Draft (you approve every note), Assist (confident blockers and majors post on
   their own) or Auto.
 - **Add projects in two clicks:** Warden lists the projects your token can see and finds your existing
@@ -48,8 +52,10 @@ your guardrails.
 | **History** and audit trail | **Guardrails** with live preview |
 | ![Add projects](docs/screenshots/add-projects.png) | ![Command palette](docs/screenshots/command-palette.png) |
 | **Add projects** from your clones | **Command palette** |
-| ![Settings](docs/screenshots/settings-setup.png) | ![Dark mode](docs/screenshots/review-dark.png) |
-| **Settings:** setup checklist | **Dark mode** |
+| ![Rule editor](docs/screenshots/rule-editor.png) | ![Settings](docs/screenshots/settings-setup.png) |
+| **Custom rules** with a live test | **Settings:** setup checklist |
+| ![Dark mode](docs/screenshots/review-dark.png) | ![Inbox dark](docs/screenshots/inbox-dark.png) |
+| **Dark mode** | **Inbox** in dark mode |
 
 Screenshots use the built-in sample data.
 
@@ -109,6 +115,27 @@ xattr -dr com.apple.quarantine /Applications/Warden.app
    folder you pick) and otherwise keeps its own copy. New projects start in **Draft** mode.
 4. **Review.** Open MRs show up in the Inbox and are reviewed automatically (6 reviews per hour by
    default, set in Settings → Claude). Go through the findings, approve what you agree with, and post.
+
+## Custom rules and guardrails
+
+Settings → Projects → (project) → Guardrails:
+
+- **Posting:** posting mode, which severities may post on their own, note budget, summary note.
+- **Filters:** minimum confidence, lowest severity, nits, focus areas, ignored paths, and
+  **review instructions** (free text added to every review, e.g. house style or what to ignore).
+  A live preview shows what your last reviews would have posted with these settings.
+- **Rules:** every rule with its 30-day hits and how often its notes were dismissed.
+  **New rule** opens an editor:
+  - **Claude:** an instruction Claude checks on every review ("user-facing strings must be wrapped
+    in `_()`").
+  - **Pattern:** a regex run on added lines, with the note text to post. Paste code to see which
+    lines match, or test it on a recent MR's diff. Nothing is posted while testing.
+  - **Semgrep:** a rules file in the repo, run when semgrep is installed.
+  - File glob and severity for each rule. Built-in and `.warden.yml` rules can have their severity
+    and file scope changed locally; **Reset** restores them.
+
+Custom rules are stored per project on your Mac and get IDs like `CR-001`. **Copy as .warden.yml**
+puts them on the clipboard as a `rules:` block so you can commit them for your team.
 
 ## Configure a repository
 

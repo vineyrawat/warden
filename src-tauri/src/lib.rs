@@ -44,21 +44,23 @@ fn init_logging() {
     let filter = EnvFilter::try_from_default_env()
         .unwrap_or_else(|_| EnvFilter::new("warn,warden=info,warden_lib=info,warden_core=info"));
     let dir = state::default_data_dir().join("logs");
-    let file = std::fs::create_dir_all(&dir)
-        .ok()
-        .and_then(|_| {
-            std::fs::OpenOptions::new()
-                .create(true)
-                .append(true)
-                .open(dir.join("warden.log"))
-                .ok()
-        });
+    let file = std::fs::create_dir_all(&dir).ok().and_then(|_| {
+        std::fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(dir.join("warden.log"))
+            .ok()
+    });
     let registry = tracing_subscriber::registry()
         .with(filter)
         .with(fmt::layer().with_writer(std::io::stderr));
     let res = match file {
         Some(f) => registry
-            .with(fmt::layer().with_ansi(false).with_writer(std::sync::Mutex::new(f)))
+            .with(
+                fmt::layer()
+                    .with_ansi(false)
+                    .with_writer(std::sync::Mutex::new(f)),
+            )
             .try_init(),
         None => registry.try_init(),
     };
@@ -109,6 +111,8 @@ pub fn run() {
             commands::delete_project,
             commands::get_project_config,
             commands::get_project_overrides,
+            commands::test_rule_pattern,
+            commands::test_rule_on_run,
             commands::save_project_overrides,
             commands::poll_now,
             commands::list_mrs,

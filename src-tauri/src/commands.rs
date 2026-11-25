@@ -14,6 +14,7 @@ use serde_json::Value;
 use tauri::{AppHandle, Manager, State, WebviewUrl, WebviewWindowBuilder};
 
 use warden_core::checks::{self, redact_secrets};
+use warden_core::config::RuleConfig;
 use warden_core::config::{default_rules, merge_overrides, AppSettings, WardenConfig};
 use warden_core::discovery;
 use warden_core::forge::provider_for_host;
@@ -22,6 +23,7 @@ use warden_core::poster::{PostReport, Poster};
 use warden_core::secrets;
 use warden_core::stats;
 use warden_core::worktree::expand_tilde;
+use warden_core::RuleTestResult;
 use warden_core::{
     AddProjectItem, AddProjectResult, AppEvent, AuditEvent, CiJob, CiStatus, CiSummary, Discovery,
     EngineStatus, FindingCounts, FindingStatus, ForgeKind, ForgeStatus, MergeRequest, MrRow,
@@ -701,6 +703,37 @@ pub async fn review_local(
 #[tauri::command]
 pub async fn cancel_run(state: St<'_>, run_id: i64) -> Result<()> {
     state.pipeline.cancel(run_id).await
+}
+
+/// Pasted code matched by a pattern rule (rule editor test box). Nothing is stored.
+#[tauri::command]
+pub async fn test_rule_pattern(pattern: String, code: String) -> Result<RuleTestResult> {
+    let matches = checks::rules::test_pattern_on_code(&pattern, &code)?;
+    Ok(RuleTestResult {
+        matches,
+        files_checked: 0,
+        note: None,
+    })
+}
+
+/// What a (not yet saved) rule would flag in a past run's diff. Read-only.
+#[tauri::command]
+pub async fn test_rule_on_run(
+    state: St<'_>,
+    rule: RuleConfig,
+    run_id: i64,
+) -> Result<RuleTestResult> {
+    let run = state.db.get_run(run_id).await?;
+    let cached = state
+        .files_cache
+        .lock()
+        .ok()
+        .and_then(|c| c.get(&run_id).cloned());
+    let files = match cached {
+        Some(f) => f,
+        None => state.pipeline.run_files(&run).await?,
+    };
+    checks::rules::test_rule_on_files(&rule, &files)
 }
 
 #[tauri::command]

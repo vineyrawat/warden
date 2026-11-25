@@ -3,6 +3,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import type { Severity } from "@/bindings/Severity";
 import { SEVERITIES, capitalize } from "@/lib/format";
 import { ControlRow, TagListInput } from "./bits";
@@ -51,6 +52,20 @@ export function FiltersTab({ draft, set }: { draft: Draft; set: Set }) {
           <div className="mb-1.5 text-2xs text-muted-foreground">Globs left out of the diff Claude reviews and of rule checks</div>
           <TagListInput label="Add ignored path" placeholder="e.g. **/migrations/**" mono values={draft.ignorePaths} onChange={(v) => set("ignorePaths", v)} />
         </div>
+      </section>
+
+      <section className="rounded-lg border bg-card px-3.5 py-3">
+        <h3 className="text-[12.5px] font-semibold">Review instructions</h3>
+        <p className="mb-2 text-2xs text-muted-foreground">Added to Claude's instructions on every review of this project: house style, things to ignore, what matters most.</p>
+        <Textarea
+          aria-label="Review instructions"
+          rows={4}
+          value={draft.extraInstructions}
+          maxLength={2000}
+          onChange={(e) => set("extraInstructions", e.target.value)}
+          placeholder="We use Frappe v15. Prefer frappe.db.get_value over raw SQL. Don't flag missing type hints. One issue per note, in plain English."
+        />
+        <div className="mt-1 text-right text-2xs text-muted-foreground">{draft.extraInstructions.length} / 2000</div>
       </section>
     </div>
   );

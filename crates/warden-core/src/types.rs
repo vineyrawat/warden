@@ -778,3 +778,27 @@ pub struct RunRow {
     pub finding_counts: FindingCounts,
     pub ci_summary: CiSummary,
 }
+
+// ---------------------------------------------------------------------------------------------
+// Rule editor (test a rule before saving it)
+// ---------------------------------------------------------------------------------------------
+
+/// One line a rule would flag.
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../../ui/src/bindings/")]
+pub struct RuleMatch {
+    /// Empty for pasted code.
+    pub file: String,
+    pub line: u32,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Default, Serialize, Deserialize, TS)]
+#[ts(export, export_to = "../../ui/src/bindings/")]
+pub struct RuleTestResult {
+    pub matches: Vec<RuleMatch>,
+    /// Files the rule looked at (after its `applies_to` filter).
+    pub files_checked: u32,
+    /// Why nothing could be tested (e.g. Claude or semgrep rules), when set.
+    pub note: Option<String>,
+}

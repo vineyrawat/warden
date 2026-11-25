@@ -28,7 +28,7 @@ export { overridesFromDraft } from "@/components/guardrails/logic";
 type Tab = "posting" | "filters" | "rules";
 
 const POSTING_KEYS = ["mode", "autoSeverities", "autoPostConfidence", "maxNotes", "maxNotesPerHour", "summaryNote"];
-const FILTER_KEYS = ["minConfidence", "severityFloor", "nits", "focus", "ignorePaths"];
+const FILTER_KEYS = ["minConfidence", "severityFloor", "nits", "focus", "ignorePaths", "extraInstructions"];
 
 /** Thin wrapper kept for the legacy `guardrails` route: header + project picker + panel. */
 export function GuardrailsScreen({ initialProjectId }: { initialProjectId?: number }) {
@@ -176,7 +176,7 @@ function PanelBody({ project, cfg }: { project: Project; cfg: MergedConfig }) {
       </TabsContent>
       <TabsContent value="rules" className="mt-3.5">
         <div className="grid gap-3.5">
-          <RulesTab rules={cfg.rules} disabled={draft.disabled} onToggle={toggleRule} stats={ruleStats.data} statsLoading={ruleStats.isLoading} recent={recent.data} branch={branch} />
+          <RulesTab projectId={project.id} rules={cfg.rules} disabled={draft.disabled} onToggle={toggleRule} stats={ruleStats.data} statsLoading={ruleStats.isLoading} recent={recent.data} branch={branch} />
           <AlwaysOnCard />
         </div>
       </TabsContent>

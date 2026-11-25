@@ -309,3 +309,30 @@ describe("mock backend: history rows", () => {
     expect((await call<RunRow[]>("list_run_rows", { limit: 3 })).length).toBe(3);
   });
 });
+
+describe("mock backend: custom rules", () => {
+  it("merges rules keyed by id like the core", async () => {
+    await call("save_project_overrides", { id: 2, overrides: { rules: { "CR-001": { title: "No print", pattern: "print\\(", severity: "minor" }, "FR-007": { severity: "minor" } } } });
+    const cfg = await call<{ rules: { id: string; severity: string; pattern: string | null }[] }>("get_project_config", { id: 2 });
+    expect(cfg.rules.find((r) => r.id === "CR-001")).toMatchObject({ pattern: "print\\(", severity: "minor" });
+    const fr7 = cfg.rules.find((r) => r.id === "FR-007");
+    if (fr7) expect(fr7.severity).toBe("minor");
+  });
+
+  it("tests a pattern on pasted code", async () => {
+    const r = await call<{ matches: { line: number }[] }>("test_rule_pattern", { pattern: "^\\s*print\\(", code: "a = 1\n  print(a)\nprint(2)" });
+    expect(r.matches.map((m) => m.line)).toEqual([2, 3]);
+    await expect(call("test_rule_pattern", { pattern: "(", code: "x" })).rejects.toThrow(/invalid pattern/);
+  });
+});
+
+describe("globToRegExp", () => {
+  it("matches like globset", async () => {
+    const { globToRegExp } = await import("../mock");
+    expect(globToRegExp("**/*.py").test("entries_crm/api/import_links.py")).toBe(true);
+    expect(globToRegExp("**/*.py").test("a.py")).toBe(true);
+    expect(globToRegExp("*.py").test("api/a.py")).toBe(false);
+    expect(globToRegExp("api/**").test("api/x/y.ts")).toBe(true);
+    expect(globToRegExp("src/?.ts").test("src/a.ts")).toBe(true);
+  });
+});

@@ -14,7 +14,7 @@ use regex::Regex;
 use crate::config::{RuleConfig, RuleKind};
 use crate::diff::{ChangedIndex, FileDiff, PathMatcher};
 use crate::error::{Result, WardenError};
-use crate::types::NewFinding;
+use crate::types::{NewFinding, RuleMatch, RuleTestResult};
 
 use super::secrets_scan::{evidence_snippet, redact_secrets};
 
@@ -93,6 +93,70 @@ pub fn regex_rule_findings(
         }
     }
     out
+}
+
+/// Lines of pasted code matched by `pattern` (1-based line numbers). Invalid regex is an error.
+pub fn test_pattern_on_code(pattern: &str, code: &str) -> Result<Vec<RuleMatch>> {
+    let re =
+        Regex::new(pattern).map_err(|e| WardenError::Config(format!("invalid pattern: {e}")))?;
+    Ok(code
+        .lines()
+        .enumerate()
+        .filter(|(_, l)| re.is_match(l))
+        .map(|(i, l)| RuleMatch {
+            file: String::new(),
+            line: i as u32 + 1,
+            text: l.to_string(),
+        })
+        .take(500)
+        .collect())
+}
+
+/// What a rule would flag in a run's diff. Only pattern rules can be tested this way; Claude and
+/// semgrep rules get a note instead.
+pub fn test_rule_on_files(rule: &RuleConfig, files: &[FileDiff]) -> Result<RuleTestResult> {
+    match rule.kind() {
+        RuleKind::Claude => {
+            return Ok(RuleTestResult {
+                note: Some("Claude rules are checked by Claude during the next review.".into()),
+                ..Default::default()
+            })
+        }
+        RuleKind::Semgrep => {
+            return Ok(RuleTestResult {
+                note: Some(
+                    "Semgrep rules run during the next review (if semgrep is installed).".into(),
+                ),
+                ..Default::default()
+            })
+        }
+        RuleKind::Regex => {}
+    }
+    let pattern = rule.pattern.as_deref().unwrap_or_default();
+    let re =
+        Regex::new(pattern).map_err(|e| WardenError::Config(format!("invalid pattern: {e}")))?;
+    let matcher = applies_matcher(rule)
+        .map_err(|e| WardenError::Config(format!("invalid applies_to glob: {e}")))?;
+    let mut out = RuleTestResult::default();
+    for f in files.iter().filter(|f| !f.is_binary && !f.is_deleted) {
+        if let Some(m) = &matcher {
+            if !m.is_match(&f.new_path) {
+                continue;
+            }
+        }
+        out.files_checked += 1;
+        out.matches.extend(
+            f.added_lines()
+                .filter(|(_, t)| re.is_match(t))
+                .map(|(line, text)| RuleMatch {
+                    file: f.new_path.clone(),
+                    line,
+                    text: text.to_string(),
+                }),
+        );
+    }
+    out.matches.truncate(500);
+    Ok(out)
 }
 
 fn applies_matcher(rule: &RuleConfig) -> std::result::Result<Option<PathMatcher>, globset::Error> {
@@ -417,4 +481,48 @@ pub fn parse_semgrep_json(
         })
         .collect();
     Ok((findings, notices))
+}
+
+#[cfg(test)]
+mod rule_test_tests {
+    use super::*;
+
+    fn rule(pattern: Option<&str>, applies_to: Option<&str>) -> RuleConfig {
+        RuleConfig {
+            id: "CR-001".into(),
+            title: "No print".into(),
+            applies_to: applies_to.map(Into::into),
+            instruction: None,
+            pattern: pattern.map(Into::into),
+            semgrep: None,
+            severity: crate::types::Severity::Minor,
+        }
+    }
+
+    #[test]
+    fn pasted_code_matches_by_line() {
+        let m = test_pattern_on_code(
+            r"^\s*print\(",
+            "def f(x):\n    print(x)\n    return x\nprint(1)",
+        )
+        .unwrap();
+        assert_eq!(m.iter().map(|m| m.line).collect::<Vec<_>>(), vec![2, 4]);
+        assert!(test_pattern_on_code("(", "x").is_err());
+    }
+
+    #[test]
+    fn claude_rules_get_a_note() {
+        let r = test_rule_on_files(&rule(None, None), &[]).unwrap();
+        assert!(r.note.is_some() && r.matches.is_empty());
+    }
+
+    #[test]
+    fn diff_matches_respect_applies_to() {
+        let diff = "diff --git a/a.py b/a.py\n--- a/a.py\n+++ b/a.py\n@@ -1,1 +1,3 @@\n x = 1\n+print(x)\n+y = 2\ndiff --git a/b.js b/b.js\n--- a/b.js\n+++ b/b.js\n@@ -1,0 +1,1 @@\n+print(x)\n";
+        let files = crate::diff::parse_unified(diff);
+        let r = test_rule_on_files(&rule(Some(r"print\("), Some("**/*.py")), &files).unwrap();
+        assert_eq!(r.files_checked, 1);
+        assert_eq!(r.matches.len(), 1);
+        assert_eq!((r.matches[0].file.as_str(), r.matches[0].line), ("a.py", 2));
+    }
 }

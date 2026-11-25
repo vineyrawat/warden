@@ -11,6 +11,7 @@ import type { AddProjectItem } from "@/bindings/AddProjectItem";
 import type { AddProjectResult } from "@/bindings/AddProjectResult";
 import type { AppEvent } from "@/bindings/AppEvent";
 import type { Discovery } from "@/bindings/Discovery";
+import type { RuleTestResult } from "@/bindings/RuleTestResult";
 import type { LocalRepo } from "@/bindings/LocalRepo";
 import type { PostingMode } from "@/bindings/PostingMode";
 import type { AppSettings } from "@/bindings/AppSettings";
@@ -54,6 +55,46 @@ export function deepMerge<T>(base: T, patch: unknown): T {
   const out: Record<string, unknown> = { ...base };
   for (const [k, v] of Object.entries(patch)) out[k] = k in out ? deepMerge(out[k], v) : v;
   return out as T;
+}
+
+/** Minimal glob → RegExp (`**` any depth, `*` within a segment, `?` one char), like globset. */
+export function globToRegExp(glob: string): RegExp {
+  let re = "";
+  for (let i = 0; i < glob.length; i++) {
+    const c = glob[i];
+    if (c === "*" && glob[i + 1] === "*") {
+      const slash = glob[i + 2] === "/";
+      re += slash ? "(?:.*/)?" : ".*";
+      i += slash ? 2 : 1;
+    } else if (c === "*") re += "[^/]*";
+    else if (c === "?") re += "[^/]";
+    else re += c.replace(/[.+^${}()|[\]\\]/g, "\\$&");
+  }
+  return new RegExp(`^${re}$`);
+}
+
+/** Mirrors `config::merge_overrides`: `rules` may be an object keyed by rule id (add / patch /
+ * remove with null) instead of a list; everything else deep-merges. */
+export function mergeConfig(base: WardenConfig, overrides: Record<string, unknown>): WardenConfig {
+  const { rules, ...rest } = overrides as { rules?: unknown };
+  const merged = deepMerge<WardenConfig>(clone(base), rest);
+  if (rules && typeof rules === "object" && !Array.isArray(rules)) {
+    let list = [...merged.rules];
+    for (const [id, patch] of Object.entries(rules as Record<string, unknown>)) {
+      const at = list.findIndex((r) => r.id === id);
+      if (patch === null) {
+        if (at >= 0) list = list.filter((_, k) => k !== at);
+      } else if (at >= 0) {
+        list[at] = deepMerge(list[at], patch);
+      } else {
+        list.push({ id, title: id, applies_to: null, instruction: null, pattern: null, semgrep: null, severity: "major", ...(patch as object) } as WardenConfig["rules"][number]);
+      }
+    }
+    merged.rules = list;
+  } else if (Array.isArray(rules)) {
+    merged.rules = rules as WardenConfig["rules"];
+  }
+  return merged;
 }
 
 export class MockBackend {
@@ -435,6 +476,35 @@ export class MockBackend {
     return { project_id: project.id, mr_id: mr.id, run_id: runId, added_project: added };
   }
 
+  cmd_test_rule_pattern({ pattern, code }: { pattern: string; code: string }): RuleTestResult {
+    let re: RegExp;
+    try {
+      re = new RegExp(pattern);
+    } catch (e) {
+      throw new Error(`invalid pattern: ${(e as Error).message}`);
+    }
+    const matches = (code ?? "").split("\n").flatMap((text, i) => (re.test(text) ? [{ file: "", line: i + 1, text }] : []));
+    return { matches, files_checked: 0, note: null };
+  }
+
+  cmd_test_rule_on_run({ rule, runId }: { rule: WardenConfig["rules"][number]; runId: number }): RuleTestResult {
+    if (rule.semgrep) return { matches: [], files_checked: 0, note: "Semgrep rules run during the next review (if semgrep is installed)." };
+    if (!rule.pattern) return { matches: [], files_checked: 0, note: "Claude rules are checked by Claude during the next review." };
+    let re: RegExp;
+    try {
+      re = new RegExp(rule.pattern);
+    } catch (e) {
+      throw new Error(`invalid pattern: ${(e as Error).message}`);
+    }
+    const glob = rule.applies_to?.trim();
+    const globRe = glob ? globToRegExp(glob) : null;
+    const files = (this.s.files[runId] ?? []).filter((f) => !f.is_binary && !f.is_deleted && (!globRe || globRe.test(f.new_path)));
+    const matches = files.flatMap((f) =>
+      f.hunks.flatMap((h) => h.lines.filter((l) => l.kind === "add" && l.new_line != null && re.test(l.text)).map((l) => ({ file: f.new_path, line: l.new_line as number, text: l.text }))),
+    );
+    return { matches, files_checked: files.length, note: null };
+  }
+
   cmd_pick_folder() {
     return "~/Desktop/Entries/benches";
   }
@@ -470,7 +540,7 @@ export class MockBackend {
     if (!base) throw new Error(`project ${id} not found`);
     const ov = this.s.overrides[id] ?? {};
     const { disabled_rules, ...rest } = ov as { disabled_rules?: string[] };
-    const merged = deepMerge<WardenConfig>(clone(base), rest);
+    const merged = mergeConfig(base, rest);
     return { ...merged, disabled_rules: disabled_rules ?? [] };
   }
 
@@ -820,7 +890,7 @@ export class MockBackend {
     const cand = (isPlainObject(overrides) ? overrides : {}) as Record<string, unknown>;
     const { disabled_rules: storedDisabled, ...storedRest } = stored as { disabled_rules?: string[] };
     const { disabled_rules: candDisabled, ...candRest } = cand as { disabled_rules?: string[] };
-    const cfg = deepMerge<WardenConfig>(deepMerge<WardenConfig>(clone(this.s.configs[projectId]), storedRest), candRest);
+    const cfg = mergeConfig(mergeConfig(this.s.configs[projectId], storedRest), candRest);
     const mode = (((candRest as Record<string, unknown>).posting as { mode?: PostingMode } | undefined)?.mode ?? project.mode) as PostingMode;
     const disabled = new Set(candDisabled ?? storedDisabled ?? []);
     const rank: Record<Severity, number> = { blocker: 3, major: 2, minor: 1, nit: 0 };

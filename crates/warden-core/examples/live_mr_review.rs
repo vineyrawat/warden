@@ -59,7 +59,13 @@ impl ForgeProvider for ReadOnly {
     async fn list_discussions(&self, p: &Project, iid: u64) -> Result<Vec<ForgeDiscussion>> {
         self.0.list_discussions(p, iid).await
     }
-    async fn post_line_note(&self, _: &Project, _: u64, _: &str, _: &DiffPosition) -> Result<String> {
+    async fn post_line_note(
+        &self,
+        _: &Project,
+        _: u64,
+        _: &str,
+        _: &DiffPosition,
+    ) -> Result<String> {
         Err(blocked("post_line_note"))
     }
     async fn post_note(&self, _: &Project, _: u64, _: &str) -> Result<String> {
@@ -77,13 +83,18 @@ impl ForgeProvider for ReadOnly {
 }
 
 fn arg(args: &[String], name: &str) -> Option<String> {
-    args.iter().position(|a| a == name).and_then(|i| args.get(i + 1).cloned())
+    args.iter()
+        .position(|a| a == name)
+        .and_then(|i| args.get(i + 1).cloned())
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let args: Vec<String> = std::env::args().collect();
-    let base = arg(&args, "--base").expect("--base").trim_end_matches('/').to_string();
+    let base = arg(&args, "--base")
+        .expect("--base")
+        .trim_end_matches('/')
+        .to_string();
     let remote_id = arg(&args, "--project").expect("--project");
     let token = secrets::get_token(&secrets::service_key(ForgeKind::Gitlab, &base))?
         .expect("no token saved for this host");
@@ -107,7 +118,10 @@ async fn main() -> Result<()> {
     let mrs = provider.list_open_mrs(&project).await?;
     println!("{} open MRs on {remote_id}", mrs.len());
     for m in mrs.iter().take(10) {
-        println!("  !{:<5} {:<60} {} -> {} draft={}", m.iid, m.title, m.source_branch, m.target_branch, m.draft);
+        println!(
+            "  !{:<5} {:<60} {} -> {} draft={}",
+            m.iid, m.title, m.source_branch, m.target_branch, m.draft
+        );
     }
     if args.iter().any(|a| a == "--list") {
         return Ok(());
@@ -119,20 +133,40 @@ async fn main() -> Result<()> {
 
     // Code source.
     if args.iter().any(|a| a == "--managed") {
-        let info = provider.list_project_details(&remote_id).await?.into_iter()
-            .find(|r| r.remote_id.eq_ignore_ascii_case(&remote_id)).expect("project not found");
+        let info = provider
+            .list_project_details(&remote_id)
+            .await?
+            .into_iter()
+            .find(|r| r.remote_id.eq_ignore_ascii_case(&remote_id))
+            .expect("project not found");
         let dest = discovery::managed_clone_dir(tmp.path(), &project);
         let t = std::time::Instant::now();
-        discovery::clone_managed(&dest, info.clone_url.as_deref().expect("clone url"), &base, provider.git_auth_header().as_deref()).await?;
-        println!("managed clone OK in {:.1}s -> {}", t.elapsed().as_secs_f64(), dest.display());
+        discovery::clone_managed(
+            &dest,
+            info.clone_url.as_deref().expect("clone url"),
+            &base,
+            provider.git_auth_header().as_deref(),
+        )
+        .await?;
+        println!(
+            "managed clone OK in {:.1}s -> {}",
+            t.elapsed().as_secs_f64(),
+            dest.display()
+        );
         project.local_path = dest.to_string_lossy().into();
     } else if let Some(l) = arg(&args, "--local") {
         project.local_path = l;
     } else {
         let (scanned, _) = discovery::scan_repos(&discovery::default_roots());
-        let hit = scanned.iter().find(|r| r.remotes.iter().any(|(_, u)| {
-            discovery::remote_id_for(u, &base).is_some_and(|id| id.eq_ignore_ascii_case(&remote_id))
-        })).expect("no local clone found; pass --local or --managed");
+        let hit = scanned
+            .iter()
+            .find(|r| {
+                r.remotes.iter().any(|(_, u)| {
+                    discovery::remote_id_for(u, &base)
+                        .is_some_and(|id| id.eq_ignore_ascii_case(&remote_id))
+                })
+            })
+            .expect("no local clone found; pass --local or --managed");
         project.local_path = hit.path.to_string_lossy().into();
         println!("using local clone {}", project.local_path);
     }
@@ -141,7 +175,9 @@ async fn main() -> Result<()> {
     let settings = AppSettings {
         data_dir: tmp.path().to_string_lossy().into(),
         worktree_root: tmp.path().join("worktrees").to_string_lossy().into(),
-        max_turns: arg(&args, "--max-turns").and_then(|t| t.parse().ok()).unwrap_or(20),
+        max_turns: arg(&args, "--max-turns")
+            .and_then(|t| t.parse().ok())
+            .unwrap_or(20),
         ..Default::default()
     };
     db.save_settings(&settings).await?;
@@ -149,12 +185,19 @@ async fn main() -> Result<()> {
     let mut mr = provider.get_mr(&project, iid).await?;
     mr.project_id = project.id;
     let mr_id = db.upsert_mr(&mr).await?;
-    println!("reviewing !{} {} ({} -> {})", mr.iid, mr.title, mr.source_branch, mr.target_branch);
+    println!(
+        "reviewing !{} {} ({} -> {})",
+        mr.iid, mr.title, mr.source_branch, mr.target_branch
+    );
 
     let events = EventBus::new();
     let registry = Arc::new(RunRegistry::new());
     let mcp = McpServer::start(0, registry.clone()).await?;
-    let ci = Arc::new(Pipeline::ci_runner(&db, events.clone(), tmp.path().join("logs")));
+    let ci = Arc::new(Pipeline::ci_runner(
+        &db,
+        events.clone(),
+        tmp.path().join("logs"),
+    ));
     let pipeline = Pipeline::new(db.clone(), events.clone(), registry, ci, mcp.url());
 
     let mut rx = events.subscribe();
@@ -163,7 +206,9 @@ async fn main() -> Result<()> {
             match ev {
                 AppEvent::RunUpdated { run } => println!("[run] status={}", run.status),
                 AppEvent::RunProgress { message, turn, .. } => println!("[t{turn}] {message}"),
-                AppEvent::CiJobUpdated { job } => println!("    [ci] {} -> {}", job.name, job.status),
+                AppEvent::CiJobUpdated { job } => {
+                    println!("    [ci] {} -> {}", job.name, job.status)
+                }
                 AppEvent::Notice { level, message } => println!("[notice:{level}] {message}"),
                 _ => {}
             }
@@ -173,14 +218,33 @@ async fn main() -> Result<()> {
     let started = std::time::Instant::now();
     let run = pipeline.queue_mr_review(mr_id, None).await?;
     let run = pipeline.execute_run(run.id, Some(provider.clone())).await?;
-    println!("\n==== RESULT: status={} turns={} wall={:.0}s verdict={:?}", run.status, run.turns, started.elapsed().as_secs_f64(), run.verdict);
+    println!(
+        "\n==== RESULT: status={} turns={} wall={:.0}s verdict={:?}",
+        run.status,
+        run.turns,
+        started.elapsed().as_secs_f64(),
+        run.verdict
+    );
     if let Some(e) = &run.error {
         println!("error={e}");
     }
     println!("summary={:?}", run.summary);
     for f in db.list_findings(run.id).await? {
-        println!("  [{}] {} {} {}:{} rule={:?} conf={:.2} {}{}", f.source, f.status, f.severity, f.file, f.line, f.rule_id, f.confidence, f.title,
-            f.guardrail_reason.as_deref().map(|r| format!("  <- {r}")).unwrap_or_default());
+        println!(
+            "  [{}] {} {} {}:{} rule={:?} conf={:.2} {}{}",
+            f.source,
+            f.status,
+            f.severity,
+            f.file,
+            f.line,
+            f.rule_id,
+            f.confidence,
+            f.title,
+            f.guardrail_reason
+                .as_deref()
+                .map(|r| format!("  <- {r}"))
+                .unwrap_or_default()
+        );
     }
     for j in db.list_ci_jobs(run.id).await? {
         println!("  ci {} {} {}ms", j.name, j.status, j.duration_ms);
