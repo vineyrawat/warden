@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette = docs/plan.html mockup tokens, stored as HSL triplets so Tailwind opacity modifiers work. */
+@layer base {
+  :root {
+    --bg: 220 17.6% 96.7%;
+    --surface: 0 0% 100%;
+    --surface-2: 214.3 25.9% 94.7%;
+    --fg: 218.6 25% 11%;
+    --muted: 218.4 12.1% 40.6%;
+    --line: 216.9 23.6% 89.2%;
+    --brand: 223.9 65.1% 50.6%;
+    --brand-soft: 222.9 77.8% 94.7%;
+    --red: 4 63% 46.7%;
+    --red-soft: 5.7 72.4% 94.3%;
+    --orange: 30.2 84.9% 39%;
+    --orange-soft: 32.3 76.5% 93.3%;
+    --yellow: 48.3 100% 28%;
+    --yellow-soft: 48.6 69.8% 89.6%;
+    --green: 146.1 63.1% 30.8%;
+    --green-soft: 144.7 41.5% 92%;
+    --code-bg: 216 23.8% 95.9%;
+    --add: 141.2 45.9% 92.7%;
+    --del: 0 73.9% 95.5%;
+    --chrome: 217.5 20% 92.2%;
+    --radius: 0.5rem;
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: 220 23.1% 7.6%;
+      --surface: 220 21.4% 11%;
+      --surface-2: 220 20.5% 14.3%;
+      --fg: 220 20.9% 91.6%;
+      --muted: 217.5 12.5% 62.4%;
+      --line: 218.8 16.8% 19.8%;
+      --brand: 224.4 80.6% 73.7%;
+      --brand-soft: 225 39.1% 18%;
+      --red: 4.8 80.8% 69.4%;
+      --red-soft: 3.9 36.5% 16.7%;
+      --orange: 29.2 82.2% 64.7%;
+      --orange-soft: 29 35.8% 15.9%;
+      --yellow: 48.4 65.9% 59.8%;
+      --yellow-soft: 52.5 31.6% 14.9%;
+      --green: 145.3 53.2% 59.8%;
+      --green-soft: 142.2 39.1% 13.5%;
+      --code-bg: 218.2 23.4% 9.2%;
+      --add: 145.7 41.2% 13.3%;
+      --del: 356.1 36.5% 16.7%;
+      --chrome: 220 19% 15.5%;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: 220 23.1% 7.6%;
+    --surface: 220 21.4% 11%;
+    --surface-2: 220 20.5% 14.3%;
+    --fg: 220 20.9% 91.6%;
+    --muted: 217.5 12.5% 62.4%;
+    --line: 218.8 16.8% 19.8%;
+    --brand: 224.4 80.6% 73.7%;
+    --brand-soft: 225 39.1% 18%;
+    --red: 4.8 80.8% 69.4%;
+    --red-soft: 3.9 36.5% 16.7%;
+    --orange: 29.2 82.2% 64.7%;
+    --orange-soft: 29 35.8% 15.9%;
+    --yellow: 48.4 65.9% 59.8%;
+    --yellow-soft: 52.5 31.6% 14.9%;
+    --green: 145.3 53.2% 59.8%;
+    --green-soft: 142.2 39.1% 13.5%;
+    --code-bg: 218.2 23.4% 9.2%;
+    --add: 145.7 41.2% 13.3%;
+    --del: 356.1 36.5% 16.7%;
+    --chrome: 220 19% 15.5%;
+    color-scheme: dark;
+  }
+
+  * {
+    @apply border-border;
+  }
+  /* Desktop app shell: the window never scrolls, only the panes inside it do. `overflow: hidden`
+     also stops absolutely positioned children (e.g. `sr-only` labels whose containing block is
+     <body>) from stretching the document. No min-width here: the Settings window is 760px wide at
+     its minimum, and the main window's minimum size is set by Tauri. */
+  html,
+  body,
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+  #root {
+    position: relative;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  /* Thin scrollbars that do not take layout space or shout when macOS is set to always show them. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted) / 0.35) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track,
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted) / 0.3);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted) / 0.55);
+    background-clip: content-box;
+  }
+  code,
+  pre,
+  kbd {
+    @apply font-mono;
+  }
+  :focus-visible {
+    outline: 2px solid hsl(var(--brand));
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .pill {
+    @apply inline-flex items-center whitespace-nowrap rounded-full px-2 py-0.5 text-2xs font-semibold;
+  }
+  .code-block {
+    @apply overflow-x-auto rounded-md border bg-codebg px-2.5 py-2 font-mono text-[11.5px] leading-normal;
+  }
+  .status-dot::before {
+    content: "";
+    @apply mr-1.5 inline-block h-[7px] w-[7px] rounded-full align-[1px];
+  }
+}

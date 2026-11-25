@@ -1,0 +1,341 @@
+<title>Warden UX Variants</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: review sheet. Top = section tracker; each variant = notes column + app mockup in a mac window. */
+:root {
+  --bg: hsl(220 17.6% 96.7%);
+  --surface: #fff;
+  --surface-2: hsl(214.3 25.9% 94.7%);
+  --chrome: hsl(217.5 20% 92.2%);
+  --fg: hsl(218.6 25% 11%);
+  --muted: hsl(218.4 12.1% 40.6%);
+  --line: hsl(216.9 23.6% 89.2%);
+  --brand: hsl(223.9 65.1% 50.6%);
+  --brand-soft: hsl(222.9 77.8% 94.7%);
+  --red: hsl(4 63% 46.7%);
+  --red-soft: hsl(5.7 72.4% 94.3%);
+  --orange: hsl(30.2 84.9% 39%);
+  --orange-soft: hsl(32.3 76.5% 93.3%);
+  --green: hsl(146.1 63.1% 30.8%);
+  --green-soft: hsl(144.7 41.5% 92%);
+  --code-bg: hsl(216 23.8% 95.9%);
+  --shadow: 0 1px 2px hsl(220 30% 20% / .06), 0 12px 32px hsl(220 30% 20% / .10);
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: hsl(220 23.1% 7.6%); --surface: hsl(220 21.4% 11%); --surface-2: hsl(220 20.5% 14.3%); --chrome: hsl(220 19% 15.5%);
+  --fg: hsl(220 20.9% 91.6%); --muted: hsl(217.5 12.5% 62.4%); --line: hsl(218.8 16.8% 19.8%);
+  --brand: hsl(224.4 80.6% 73.7%); --brand-soft: hsl(225 39.1% 18%);
+  --red: hsl(4.8 80.8% 69.4%); --red-soft: hsl(3.9 36.5% 16.7%); --orange: hsl(29.2 82.2% 64.7%); --orange-soft: hsl(29 35.8% 15.9%);
+  --green: hsl(145.3 53.2% 59.8%); --green-soft: hsl(142.2 39.1% 13.5%); --code-bg: hsl(218.2 23.4% 9.2%);
+  --shadow: 0 1px 2px #0006, 0 12px 32px #0008; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: hsl(220 23.1% 7.6%); --surface: hsl(220 21.4% 11%); --surface-2: hsl(220 20.5% 14.3%); --chrome: hsl(220 19% 15.5%);
+  --fg: hsl(220 20.9% 91.6%); --muted: hsl(217.5 12.5% 62.4%); --line: hsl(218.8 16.8% 19.8%);
+  --brand: hsl(224.4 80.6% 73.7%); --brand-soft: hsl(225 39.1% 18%);
+  --red: hsl(4.8 80.8% 69.4%); --red-soft: hsl(3.9 36.5% 16.7%); --orange: hsl(29.2 82.2% 64.7%); --orange-soft: hsl(29 35.8% 15.9%);
+  --green: hsl(145.3 53.2% 59.8%); --green-soft: hsl(142.2 39.1% 13.5%); --code-bg: hsl(218.2 23.4% 9.2%);
+  --shadow: 0 1px 2px #0006, 0 12px 32px #0008; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.5 var(--sans); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 40px; }
+h1 { font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+h2 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+h3 { font-size: 15px; font-weight: 600; margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); }
+.eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* tracker */
+.tracker { display: flex; flex-wrap: wrap; gap: 6px; }
+.tracker span { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); }
+.tracker span.now { background: var(--brand); border-color: var(--brand); color: var(--surface); font-weight: 600; }
+
+/* pain box */
+.pain { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+.pain ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.pain li::marker { color: var(--red); font-family: var(--mono); font-size: 12px; }
+.pain .fix li::marker { color: var(--green); }
+@media (max-width: 760px) { .pain { grid-template-columns: 1fr; } }
+
+/* variant */
+.variant { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 1000px) { .variant { grid-template-columns: 1fr; } }
+.notes { display: grid; gap: 14px; }
+.vtag { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: var(--fg); color: var(--bg); font: 700 16px var(--mono); }
+.vhead { display: flex; gap: 12px; align-items: center; }
+.stat { display: flex; gap: 16px; font-size: 12px; }
+.stat b { font: 600 18px var(--mono); display: block; color: var(--fg); }
+.pc { display: grid; gap: 4px; font-size: 13px; }
+.pc div { display: flex; gap: 8px; }
+.pc .p::before { content: "+"; color: var(--green); font: 600 13px var(--mono); }
+.pc .c::before { content: "−"; color: var(--red); font: 600 13px var(--mono); }
+.needs { font-size: 12px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; }
+.needs code { font-family: var(--mono); font-size: 11.5px; }
+
+/* mac window */
+.scroller { overflow-x: auto; padding-bottom: 4px; }
+.win { min-width: 820px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); box-shadow: var(--shadow); overflow: hidden; font-size: 13px; }
+.tb { height: 34px; background: var(--chrome); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; padding: 0 12px; font-size: 12px; color: var(--muted); }
+.dots { display: flex; gap: 6px; margin-right: 6px; }
+.dots i { width: 11px; height: 11px; border-radius: 50%; background: var(--line); display: block; }
+.dots i:nth-child(1) { background: #ec6a5e; } .dots i:nth-child(2) { background: #f4bf4f; } .dots i:nth-child(3) { background: #61c554; }
+.okdot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; }
+.body { display: grid; grid-template-columns: 168px minmax(0, 1fr); min-height: 460px; }
+.side { border-right: 1px solid var(--line); background: var(--surface); padding: 10px 8px; display: grid; align-content: start; gap: 2px; font-size: 12.5px; }
+.side a { padding: 5px 8px; border-radius: 6px; color: var(--muted); text-decoration: none; display: flex; justify-content: space-between; }
+.side a.on { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+.main { position: relative; padding: 18px; display: grid; align-content: start; gap: 12px; }
+.main.dim > .bg { opacity: .35; filter: saturate(.6); }
+
+/* app atoms */
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: 500 12.5px var(--sans); white-space: nowrap; }
+.btn.pri { background: var(--brand); border-color: var(--brand); color: var(--surface); }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
+.in { height: 30px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); padding: 0 10px; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+.in.focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); color: var(--fg); }
+.chip { display: inline-flex; align-items: center; gap: 4px; font: 500 11.5px var(--mono); padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--fg); border: 1px solid var(--line); }
+.chip.add { border-style: dashed; color: var(--muted); background: transparent; }
+.pill { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+.pill.g { background: var(--green-soft); color: var(--green); }
+.pill.o { background: var(--orange-soft); color: var(--orange); }
+.pill.b { background: var(--brand-soft); color: var(--brand); }
+.pill.n { background: var(--surface-2); color: var(--muted); }
+.cb { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--line); background: var(--surface); flex: none; display: inline-flex; align-items: center; justify-content: center; }
+.cb.on { background: var(--brand); border-color: var(--brand); }
+.cb.on::after { content: ""; width: 7px; height: 4px; border: 2px solid var(--surface); border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
+.radio { width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; background: var(--surface); }
+.radio.on { border: 5px solid var(--brand); }
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+.lbl { font-size: 11px; color: var(--muted); font-weight: 500; }
+.path { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.row { display: flex; align-items: center; gap: 10px; }
+.grow { flex: 1; min-width: 0; }
+.kbd { font: 500 10.5px var(--mono); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--muted); background: var(--surface); }
+
+/* A: list */
+.plist { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.prow { display: grid; grid-template-columns: 20px minmax(0, 1.3fr) minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--line); }
+.prow:first-child { border-top: 0; }
+.prow.head { background: var(--surface-2); font-size: 11px; color: var(--muted); font-weight: 500; padding-block: 6px; }
+.prow.sel { background: color-mix(in srgb, var(--brand-soft) 55%, transparent); }
+.pname { font-weight: 600; font-size: 12.5px; }
+.pname small { display: block; font: 400 11px var(--mono); color: var(--muted); }
+
+/* B: wizard */
+.overlay { position: absolute; inset: 0; background: hsl(220 30% 10% / .28); display: flex; justify-content: flex-end; }
+.drawer { width: 470px; height: 100%; background: var(--surface); border-left: 1px solid var(--line); box-shadow: var(--shadow); display: grid; grid-template-rows: auto auto 1fr auto; }
+.dh { padding: 16px 18px 10px; display: grid; gap: 2px; }
+.steps { display: flex; gap: 0; padding: 0 18px 12px; border-bottom: 1px solid var(--line); }
+.step { flex: 1; display: grid; gap: 4px; font-size: 11.5px; color: var(--muted); }
+.step i { height: 3px; border-radius: 2px; background: var(--line); margin-right: 6px; display: block; }
+.step.done i, .step.now i { background: var(--brand); }
+.step.now { color: var(--fg); font-weight: 600; }
+.db { padding: 16px 18px; display: grid; gap: 12px; align-content: start; }
+.opt { border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; display: flex; gap: 10px; align-items: flex-start; }
+.opt.on { border-color: var(--brand); background: color-mix(in srgb, var(--brand-soft) 60%, transparent); }
+.opt b { font-weight: 600; font-size: 12.5px; }
+.df { padding: 12px 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+.picked { display: flex; gap: 10px; align-items: center; padding: 9px 12px; background: var(--surface-2); border-radius: 8px; }
+.avatar { width: 26px; height: 26px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font: 700 11px var(--mono); color: #fff; flex: none; }
+
+/* C: scan */
+.drop { border: 1.5px dashed var(--line); border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 14px; background: var(--surface); }
+.drop .ic { width: 38px; height: 38px; border-radius: 8px; background: var(--brand-soft); color: var(--brand); display: flex; align-items: center; justify-content: center; flex: none; }
+.found { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.frow { display: grid; grid-template-columns: 20px minmax(0, 1.5fr) 24px minmax(0, 1.2fr) auto; gap: 12px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--line); }
+.frow:first-child { border-top: 0; }
+.frow .arrow { color: var(--muted); font-family: var(--mono); text-align: center; }
+.frow.off { opacity: .55; }
+.progress { height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+.progress i { display: block; height: 100%; width: 100%; background: var(--green); }
+
+.shared { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 12px; }
+.shared ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.shared li { max-width: 80ch; }
+.pick { border-top: 1px solid var(--line); padding-top: 20px; display: grid; gap: 6px; }
+hr.sep { border: 0; border-top: 1px solid var(--line); margin: 0; }
+</style>
+
+<div class="wrap">
+
+  <header style="display:grid;gap:12px">
+    <div class="eyebrow">Warden · UI review, section by section</div>
+    <h1>Section 1 of 9: Adding a project</h1>
+    <p class="muted">Three ways to replace today's add-project dialog. Pick one (or mix parts). The next section comes after you choose.</p>
+    <div class="tracker" aria-label="Sections">
+      <span class="now">1 · Add project</span><span>2 · App shell &amp; nav</span><span>3 · Inbox</span><span>4 · Review</span><span>5 · Approval queue</span><span>6 · Local CI</span><span>7 · History</span><span>8 · Guardrails</span><span>9 · Connections &amp; settings</span>
+    </div>
+  </header>
+
+  <section class="pain">
+    <div>
+      <h3>Today: 7 fields, all typed by hand</h3>
+      <ol>
+        <li>Forge picker, even though GitLab is already connected</li>
+        <li>Base URL typed again</li>
+        <li>Search box that needs a separate Search button</li>
+        <li>Local clone path typed as text, with no folder picker and no check that it exists</li>
+        <li>Target branches typed as comma-separated globs</li>
+        <li>Posting mode chosen with no explanation</li>
+        <li>Poll interval</li>
+      </ol>
+    </div>
+    <div class="fix">
+      <h3>All variants fix these</h3>
+      <ol>
+        <li>Forge and URL come from the connection you already made</li>
+        <li>Your projects list loads at once, sorted by recent activity, and filters as you type</li>
+        <li>Warden finds your existing clone by matching git remotes, or clones a copy itself</li>
+        <li>Branches come from GitLab: the default branch plus protected branches</li>
+        <li>Safe defaults (Draft, every 5 min). Change them later on the project page</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ============ A ============ -->
+  <section class="variant" aria-labelledby="va">
+    <div class="notes">
+      <div class="vhead"><span class="vtag">A</span><h2 id="va">Tick and watch</h2></div>
+      <p>The dialog opens on the projects you belong to, already loaded. Every row shows where your code is. Tick several, press one button.</p>
+      <div class="stat"><div><b>2</b>clicks for one project</div><div><b>0</b>fields typed</div><div><b>Yes</b>bulk add</div></div>
+      <div class="pc">
+        <div class="p">Fastest path. Adding 5 projects is the same effort as adding 1</div>
+        <div class="p">Clone location shown per row before you commit</div>
+        <div class="c">Branch and mode settings are hidden until after adding</div>
+      </div>
+      <div class="needs"><span class="lbl">Backend work</span>
+        <code>list_projects(membership, order_by=last_activity)</code>
+        <code>protected_branches(project)</code>
+        <code>find_local_clones(remote_url)</code> scans known folders
+        <code>managed clone</code> into Warden's data folder
+      </div>
+    </div>
+    <div class="scroller"><div class="win">
+      <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+      <div class="body">
+        <nav class="side"><a>Inbox<span>4</span></a><a>Approval queue</a><a>Local CI</a><a>History</a><a>Guardrails</a><a class="on">Projects</a><a>Connections</a></nav>
+        <div class="main">
+          <div class="row"><h3 class="grow">Add projects</h3><span class="path">gitlab.com · 23 projects you can access</span></div>
+          <div class="in focus"><span>⌕</span><span style="color:var(--fg)">entr</span><span class="grow"></span><span class="kbd">⌘K</span></div>
+          <div class="plist">
+            <div class="prow head"><span></span><span>Project</span><span>Code on this Mac</span><span>Reviews MRs into</span></div>
+            <div class="prow sel"><span class="cb on"></span><div class="pname">entries_crm<small>entries/entries_crm · 2h ago</small></div><div><span class="pill g">Found</span> <span class="path">~/Desktop/Entries/benches/crmv15/apps/entries_crm</span></div><div class="row" style="gap:4px;flex-wrap:wrap"><span class="chip">develop</span><span class="chip">main</span></div></div>
+            <div class="prow sel"><span class="cb on"></span><div class="pname">entries_platform<small>entries/entries_platform · 1d ago</small></div><div><span class="pill g">Found</span> <span class="path">~/…/crmv15/apps/entries_platform</span></div><div class="row" style="gap:4px"><span class="chip">main</span></div></div>
+            <div class="prow sel"><span class="cb on"></span><div class="pname">entries_ui<small>entries/entries_ui · 3d ago</small></div><div><span class="pill b">Warden clones</span> <span class="path">38 MB, shallow</span></div><div class="row" style="gap:4px"><span class="chip">main</span></div></div>
+            <div class="prow"><span class="cb"></span><div class="pname">entries_lnd<small>entries/entries_lnd · 5d ago</small></div><div><span class="pill g">Found</span> <span class="path">~/…/crmv15/apps/entries_lnd</span></div><div class="row" style="gap:4px"><span class="chip">develop</span></div></div>
+            <div class="prow"><span class="cb"></span><div class="pname">entries_desk<small>entries/entries_desk · 1w ago</small></div><div><span class="pill o">2 clones found</span> <span class="path">choose one</span></div><div class="row" style="gap:4px"><span class="chip">main</span></div></div>
+          </div>
+          <div class="row"><span class="muted grow" style="font-size:12px">New projects start in <b style="color:var(--fg)">Draft</b> mode: Warden suggests notes, you approve each one. Change per project later.</span><span class="btn ghost">Cancel</span><span class="btn pri">Watch 3 projects</span></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <hr class="sep">
+
+  <!-- ============ B ============ -->
+  <section class="variant" aria-labelledby="vb">
+    <div class="notes">
+      <div class="vhead"><span class="vtag">B</span><h2 id="vb">Guided side panel</h2></div>
+      <p>A panel slides in from the right with three short steps: project, code, review style. Every step is pre-filled, so it is mostly Next, Next, Done. The mockup shows step 2.</p>
+      <div class="stat"><div><b>4</b>clicks for one project</div><div><b>0</b>fields typed</div><div><b>No</b>bulk add</div></div>
+      <div class="pc">
+        <div class="p">Explains each choice. Good when teammates set it up</div>
+        <div class="p">Branch and posting mode chosen up front, with plain-English cards</div>
+        <div class="c">Slower when adding many projects</div>
+      </div>
+      <div class="needs"><span class="lbl">Backend work</span>
+        <code>same as A</code>
+        <code>tauri-plugin-dialog</code> for the folder picker
+      </div>
+    </div>
+    <div class="scroller"><div class="win">
+      <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+      <div class="body">
+        <nav class="side"><a>Inbox<span>4</span></a><a>Approval queue</a><a>Local CI</a><a>History</a><a>Guardrails</a><a class="on">Projects</a><a>Connections</a></nav>
+        <div class="main" style="min-height:500px">
+          <div class="row"><h3 class="grow">Projects</h3><span class="btn pri">+ Add project</span></div>
+          <div class="plist"><div class="prow"><span></span><div class="pname">entries_platform<small>main · Draft</small></div><div class="path">~/…/apps/entries_platform</div><div><span class="pill g">Watching</span></div></div></div>
+          <div class="overlay">
+            <div class="drawer">
+              <div class="dh"><h3>Add project</h3><span class="muted" style="font-size:12px">gitlab.com · @vinay</span></div>
+              <div class="steps"><div class="step done"><i></i>1 · Project</div><div class="step now"><i></i>2 · Code</div><div class="step"><i></i>3 · Review style</div></div>
+              <div class="db">
+                <div class="picked"><span class="avatar" style="background:#3f63c9">EC</span><div class="grow"><b style="font-size:12.5px">entries_crm</b><div class="path">entries/entries_crm</div></div><span class="btn ghost" style="height:24px">Change</span></div>
+                <div class="lbl">Where should Warden get the code from?</div>
+                <div class="opt on"><span class="radio on"></span><div class="grow"><b>Use my clone</b> <span class="pill g">Found</span><div class="path">~/Desktop/Entries/benches/crmv15/apps/entries_crm</div><div class="muted" style="font-size:11.5px;margin-top:2px">Remote matches. Warden makes separate worktrees, so your checkout and branch stay untouched.</div></div></div>
+                <div class="opt"><span class="radio"></span><div class="grow"><b>Let Warden keep its own copy</b><div class="muted" style="font-size:11.5px">Shallow clone in Warden's data folder, about 210 MB.</div></div></div>
+                <div class="opt"><span class="radio"></span><div class="grow"><b>Choose another folder…</b><div class="muted" style="font-size:11.5px">Opens the Finder picker.</div></div></div>
+              </div>
+              <div class="df"><span class="btn ghost">Back</span><span class="btn pri">Next: review style</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <hr class="sep">
+
+  <!-- ============ C ============ -->
+  <section class="variant" aria-labelledby="vc">
+    <div class="notes">
+      <div class="vhead"><span class="vtag">C</span><h2 id="vc">Start from your folders</h2></div>
+      <p>Point Warden at a folder you work in, or drop one on the window. It finds every git repo inside, matches each to its GitLab project and lists them. Toggle off what you don't want.</p>
+      <div class="stat"><div><b>2</b>clicks for all your repos</div><div><b>0</b>fields typed</div><div><b>Yes</b>bulk add</div></div>
+      <div class="pc">
+        <div class="p">Fits how you work: many apps under several benches</div>
+        <div class="p">Also accepts a pasted MR link: adds the project and reviews that MR straight away</div>
+        <div class="c">Repos you have never cloned need the search fallback (variant A's list)</div>
+      </div>
+      <div class="needs"><span class="lbl">Backend work</span>
+        <code>scan_folder(path, depth=4)</code> reads <code>git remote -v</code>
+        <code>match_remote(url) → project</code>
+        <code>parse_mr_url(url)</code> for paste
+      </div>
+    </div>
+    <div class="scroller"><div class="win">
+      <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+      <div class="body">
+        <nav class="side"><a>Inbox<span>4</span></a><a>Approval queue</a><a>Local CI</a><a>History</a><a>Guardrails</a><a class="on">Projects</a><a>Connections</a></nav>
+        <div class="main">
+          <div class="row"><h3 class="grow">Add projects</h3><span class="btn ghost">Search GitLab instead</span></div>
+          <div class="drop">
+            <span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span>
+            <div class="grow"><b style="font-size:12.5px">~/Desktop/Entries/benches</b><div class="muted" style="font-size:11.5px">Scanned 41 folders · 9 git repos · 6 match gitlab.com</div><div class="progress" style="margin-top:6px"><i></i></div></div>
+            <span class="btn">Choose folder…</span>
+          </div>
+          <div class="in"><span>🔗</span><span>Or paste an MR link, e.g. gitlab.com/entries/entries_crm/-/merge_requests/41</span></div>
+          <div class="found">
+            <div class="frow"><span class="cb on"></span><div><b style="font-size:12.5px">crmv15/apps/entries_crm</b><div class="path">git@gitlab.com:entries/entries_crm.git</div></div><span class="arrow">→</span><div class="row" style="gap:6px"><span class="pill g">entries/entries_crm</span></div><span class="row" style="gap:4px"><span class="chip">develop</span><span class="chip">main</span></span></div>
+            <div class="frow"><span class="cb on"></span><div><b style="font-size:12.5px">crmv15/apps/entries_platform</b><div class="path">git@gitlab.com:entries/entries_platform.git</div></div><span class="arrow">→</span><div><span class="pill g">entries/entries_platform</span></div><span><span class="chip">main</span></span></div>
+            <div class="frow"><span class="cb on"></span><div><b style="font-size:12.5px">crmv15/apps/entries_lnd</b><div class="path">git@gitlab.com:entries/entries_lnd.git</div></div><span class="arrow">→</span><div><span class="pill g">entries/entries_lnd</span></div><span><span class="chip">develop</span></span></div>
+            <div class="frow"><span class="cb"></span><div><b style="font-size:12.5px">version16/apps/entries_crm</b><div class="path">same remote as crmv15 copy</div></div><span class="arrow">→</span><div><span class="pill o">Duplicate, skipped</span></div><span></span></div>
+            <div class="frow off"><span class="cb"></span><div><b style="font-size:12.5px">crmv15/apps/frappe</b><div class="path">github.com/frappe/frappe</div></div><span class="arrow">→</span><div><span class="pill n">Not on gitlab.com</span></div><span></span></div>
+          </div>
+          <div class="row"><span class="muted grow" style="font-size:12px">Starts in Draft mode, every 5 min.</span><span class="btn ghost">Cancel</span><span class="btn pri">Watch 3 projects</span></div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <section class="shared">
+    <h3>Can be combined</h3>
+    <ul>
+      <li><b>A + C:</b> the dialog opens on A's list, with a "Scan a folder" button and the MR-link paste box at the top. Rows found locally show their path.</li>
+      <li><b>A + B's step 3:</b> after "Watch 3 projects", a small follow-up card asks for review style once, applied to all three.</li>
+      <li><b>Paste anywhere:</b> pressing ⌘V with an MR link on any screen adds the project if needed and starts a review.</li>
+    </ul>
+    <div class="pick">
+      <span class="eyebrow">Your pick</span>
+      <p>Reply with A, B, C or a mix such as "A + C". I then build it and move on to section 2, the app shell and navigation.</p>
+    </div>
+  </section>
+
+</div>

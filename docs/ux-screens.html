@@ -1,0 +1,1402 @@
+<title>Warden Screen Variants</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: review sheet. Top = section tracker; each variant = notes column + app mockup in a mac window. */
+:root {
+  --bg: hsl(220 17.6% 96.7%);
+  --surface: #fff;
+  --surface-2: hsl(214.3 25.9% 94.7%);
+  --chrome: hsl(217.5 20% 92.2%);
+  --fg: hsl(218.6 25% 11%);
+  --muted: hsl(218.4 12.1% 40.6%);
+  --line: hsl(216.9 23.6% 89.2%);
+  --brand: hsl(223.9 65.1% 50.6%);
+  --brand-soft: hsl(222.9 77.8% 94.7%);
+  --red: hsl(4 63% 46.7%);
+  --red-soft: hsl(5.7 72.4% 94.3%);
+  --orange: hsl(30.2 84.9% 39%);
+  --orange-soft: hsl(32.3 76.5% 93.3%);
+  --green: hsl(146.1 63.1% 30.8%);
+  --green-soft: hsl(144.7 41.5% 92%);
+  --code-bg: hsl(216 23.8% 95.9%);
+  --shadow: 0 1px 2px hsl(220 30% 20% / .06), 0 12px 32px hsl(220 30% 20% / .10);
+  --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: hsl(220 23.1% 7.6%); --surface: hsl(220 21.4% 11%); --surface-2: hsl(220 20.5% 14.3%); --chrome: hsl(220 19% 15.5%);
+  --fg: hsl(220 20.9% 91.6%); --muted: hsl(217.5 12.5% 62.4%); --line: hsl(218.8 16.8% 19.8%);
+  --brand: hsl(224.4 80.6% 73.7%); --brand-soft: hsl(225 39.1% 18%);
+  --red: hsl(4.8 80.8% 69.4%); --red-soft: hsl(3.9 36.5% 16.7%); --orange: hsl(29.2 82.2% 64.7%); --orange-soft: hsl(29 35.8% 15.9%);
+  --green: hsl(145.3 53.2% 59.8%); --green-soft: hsl(142.2 39.1% 13.5%); --code-bg: hsl(218.2 23.4% 9.2%);
+  --shadow: 0 1px 2px #0006, 0 12px 32px #0008; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: hsl(220 23.1% 7.6%); --surface: hsl(220 21.4% 11%); --surface-2: hsl(220 20.5% 14.3%); --chrome: hsl(220 19% 15.5%);
+  --fg: hsl(220 20.9% 91.6%); --muted: hsl(217.5 12.5% 62.4%); --line: hsl(218.8 16.8% 19.8%);
+  --brand: hsl(224.4 80.6% 73.7%); --brand-soft: hsl(225 39.1% 18%);
+  --red: hsl(4.8 80.8% 69.4%); --red-soft: hsl(3.9 36.5% 16.7%); --orange: hsl(29.2 82.2% 64.7%); --orange-soft: hsl(29 35.8% 15.9%);
+  --green: hsl(145.3 53.2% 59.8%); --green-soft: hsl(142.2 39.1% 13.5%); --code-bg: hsl(218.2 23.4% 9.2%);
+  --shadow: 0 1px 2px #0006, 0 12px 32px #0008; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.5 var(--sans); }
+.wrap { max-width: 1240px; margin: 0 auto; padding-block: 32px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 40px; }
+h1 { font-size: 26px; font-weight: 700; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+h2 { font-size: 20px; font-weight: 600; margin: 0; text-wrap: balance; }
+h3 { font-size: 15px; font-weight: 600; margin: 0; }
+p { margin: 0; max-width: 68ch; }
+.muted { color: var(--muted); }
+.mono { font-family: var(--mono); }
+.eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* tracker */
+.tracker { display: flex; flex-wrap: wrap; gap: 6px; }
+.tracker span { font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); }
+.tracker span.now { background: var(--brand); border-color: var(--brand); color: var(--surface); font-weight: 600; }
+
+/* pain box */
+.pain { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; }
+.pain ol { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 4px; }
+.pain li::marker { color: var(--red); font-family: var(--mono); font-size: 12px; }
+.pain .fix li::marker { color: var(--green); }
+@media (max-width: 760px) { .pain { grid-template-columns: 1fr; } }
+
+/* variant */
+.variant { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 1000px) { .variant { grid-template-columns: 1fr; } }
+.notes { display: grid; gap: 14px; }
+.vtag { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; background: var(--fg); color: var(--bg); font: 700 16px var(--mono); }
+.vhead { display: flex; gap: 12px; align-items: center; }
+.stat { display: flex; gap: 16px; font-size: 12px; }
+.stat b { font: 600 18px var(--mono); display: block; color: var(--fg); }
+.pc { display: grid; gap: 4px; font-size: 13px; }
+.pc div { display: flex; gap: 8px; }
+.pc .p::before { content: "+"; color: var(--green); font: 600 13px var(--mono); }
+.pc .c::before { content: "−"; color: var(--red); font: 600 13px var(--mono); }
+.needs { font-size: 12px; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; }
+.needs code { font-family: var(--mono); font-size: 11.5px; }
+
+/* mac window */
+.scroller { overflow-x: auto; padding-bottom: 4px; }
+.win { min-width: 820px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); box-shadow: var(--shadow); overflow: hidden; font-size: 13px; }
+.tb { height: 34px; background: var(--chrome); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; padding: 0 12px; font-size: 12px; color: var(--muted); }
+.dots { display: flex; gap: 6px; margin-right: 6px; }
+.dots i { width: 11px; height: 11px; border-radius: 50%; background: var(--line); display: block; }
+.dots i:nth-child(1) { background: #ec6a5e; } .dots i:nth-child(2) { background: #f4bf4f; } .dots i:nth-child(3) { background: #61c554; }
+.okdot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; }
+.body { display: grid; grid-template-columns: 168px minmax(0, 1fr); min-height: 460px; }
+.side { border-right: 1px solid var(--line); background: var(--surface); padding: 10px 8px; display: grid; align-content: start; gap: 2px; font-size: 12.5px; }
+.side a { padding: 5px 8px; border-radius: 6px; color: var(--muted); text-decoration: none; display: flex; justify-content: space-between; }
+.side a.on { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+.main { position: relative; padding: 18px; display: grid; align-content: start; gap: 12px; }
+.main.dim > .bg { opacity: .35; filter: saturate(.6); }
+
+/* app atoms */
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: 500 12.5px var(--sans); white-space: nowrap; }
+.btn.pri { background: var(--brand); border-color: var(--brand); color: var(--surface); }
+.btn.ghost { border-color: transparent; background: transparent; color: var(--muted); }
+.in { height: 30px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); padding: 0 10px; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12.5px; }
+.in.focus { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); color: var(--fg); }
+.chip { display: inline-flex; align-items: center; gap: 4px; font: 500 11.5px var(--mono); padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--fg); border: 1px solid var(--line); }
+.chip.add { border-style: dashed; color: var(--muted); background: transparent; }
+.pill { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+.pill.g { background: var(--green-soft); color: var(--green); }
+.pill.o { background: var(--orange-soft); color: var(--orange); }
+.pill.b { background: var(--brand-soft); color: var(--brand); }
+.pill.n { background: var(--surface-2); color: var(--muted); }
+.cb { width: 15px; height: 15px; border-radius: 4px; border: 1.5px solid var(--line); background: var(--surface); flex: none; display: inline-flex; align-items: center; justify-content: center; }
+.cb.on { background: var(--brand); border-color: var(--brand); }
+.cb.on::after { content: ""; width: 7px; height: 4px; border: 2px solid var(--surface); border-top: 0; border-right: 0; transform: rotate(-45deg) translate(1px, -1px); }
+.radio { width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--line); flex: none; background: var(--surface); }
+.radio.on { border: 5px solid var(--brand); }
+.sheet { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+.lbl { font-size: 11px; color: var(--muted); font-weight: 500; }
+.path { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.row { display: flex; align-items: center; gap: 10px; }
+.grow { flex: 1; min-width: 0; }
+.kbd { font: 500 10.5px var(--mono); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--muted); background: var(--surface); }
+
+/* A: list */
+.plist { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.prow { display: grid; grid-template-columns: 20px minmax(0, 1.3fr) minmax(0, 1.6fr) minmax(0, 1fr); gap: 12px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--line); }
+.prow:first-child { border-top: 0; }
+.prow.head { background: var(--surface-2); font-size: 11px; color: var(--muted); font-weight: 500; padding-block: 6px; }
+.prow.sel { background: color-mix(in srgb, var(--brand-soft) 55%, transparent); }
+.pname { font-weight: 600; font-size: 12.5px; }
+.pname small { display: block; font: 400 11px var(--mono); color: var(--muted); }
+
+/* B: wizard */
+.overlay { position: absolute; inset: 0; background: hsl(220 30% 10% / .28); display: flex; justify-content: flex-end; }
+.drawer { width: 470px; height: 100%; background: var(--surface); border-left: 1px solid var(--line); box-shadow: var(--shadow); display: grid; grid-template-rows: auto auto 1fr auto; }
+.dh { padding: 16px 18px 10px; display: grid; gap: 2px; }
+.steps { display: flex; gap: 0; padding: 0 18px 12px; border-bottom: 1px solid var(--line); }
+.step { flex: 1; display: grid; gap: 4px; font-size: 11.5px; color: var(--muted); }
+.step i { height: 3px; border-radius: 2px; background: var(--line); margin-right: 6px; display: block; }
+.step.done i, .step.now i { background: var(--brand); }
+.step.now { color: var(--fg); font-weight: 600; }
+.db { padding: 16px 18px; display: grid; gap: 12px; align-content: start; }
+.opt { border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; display: flex; gap: 10px; align-items: flex-start; }
+.opt.on { border-color: var(--brand); background: color-mix(in srgb, var(--brand-soft) 60%, transparent); }
+.opt b { font-weight: 600; font-size: 12.5px; }
+.df { padding: 12px 18px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+.picked { display: flex; gap: 10px; align-items: center; padding: 9px 12px; background: var(--surface-2); border-radius: 8px; }
+.avatar { width: 26px; height: 26px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font: 700 11px var(--mono); color: #fff; flex: none; }
+
+/* C: scan */
+.drop { border: 1.5px dashed var(--line); border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 14px; background: var(--surface); }
+.drop .ic { width: 38px; height: 38px; border-radius: 8px; background: var(--brand-soft); color: var(--brand); display: flex; align-items: center; justify-content: center; flex: none; }
+.found { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.frow { display: grid; grid-template-columns: 20px minmax(0, 1.5fr) 24px minmax(0, 1.2fr) auto; gap: 12px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--line); }
+.frow:first-child { border-top: 0; }
+.frow .arrow { color: var(--muted); font-family: var(--mono); text-align: center; }
+.frow.off { opacity: .55; }
+.progress { height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+.progress i { display: block; height: 100%; width: 100%; background: var(--green); }
+
+.shared { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 12px; }
+.shared ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.shared li { max-width: 80ch; }
+.pick { border-top: 1px solid var(--line); padding-top: 20px; display: grid; gap: 6px; }
+hr.sep { border: 0; border-top: 1px solid var(--line); margin: 0; }
+/* ---- additions for sections 2-9 ---- */
+:root {
+  --yellow: hsl(48.3 100% 28%); --yellow-soft: hsl(48.6 69.8% 89.6%);
+  --add: hsl(141.2 45.9% 92.7%); --del: hsl(0 73.9% 95.5%);
+  --term-bg: hsl(220 23% 9%); --term-fg: hsl(220 15% 85%); --term-dim: hsl(218 12% 58%);
+  --term-err: hsl(4 85% 72%); --term-err-bg: hsl(4 85% 72% / .14); --term-ok: hsl(145 50% 62%);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --yellow: hsl(48.4 65.9% 59.8%); --yellow-soft: hsl(52.5 31.6% 14.9%);
+  --add: hsl(145.7 41.2% 13.3%); --del: hsl(356.1 36.5% 16.7%); --term-bg: hsl(220 25% 5%); } }
+:root[data-theme="dark"] {
+  --yellow: hsl(48.4 65.9% 59.8%); --yellow-soft: hsl(52.5 31.6% 14.9%);
+  --add: hsl(145.7 41.2% 13.3%); --del: hsl(356.1 36.5% 16.7%); --term-bg: hsl(220 25% 5%); }
+
+.screen { display: grid; gap: 28px; scroll-margin-top: 16px; }
+.sechead { display: grid; gap: 8px; }
+.sechead h2 { font-size: 22px; }
+.jump { display: flex; flex-wrap: wrap; gap: 8px; }
+.jump a { color: var(--brand); font-size: 13px; text-decoration: none; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.jump a:hover, .jump a:focus-visible { border-color: var(--brand); outline: none; }
+.tracker span.done { background: var(--green-soft); border-color: transparent; color: var(--green); font-weight: 600; }
+.today { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 20px; display: grid; gap: 6px; }
+.today ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.today li::marker { color: var(--red); font-family: var(--mono); font-size: 12px; }
+.rec { background: var(--brand-soft); border-radius: 10px; padding: 14px 18px; display: grid; gap: 4px; }
+.rec p { max-width: 90ch; }
+
+.sev { font: 600 10px/1.6 var(--mono); padding: 0 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+.sev.bl { background: var(--red-soft); color: var(--red); }
+.sev.mj { background: var(--orange-soft); color: var(--orange); }
+.sev.mn { background: var(--yellow-soft); color: var(--yellow); }
+.sev.nt { background: var(--surface-2); color: var(--muted); }
+.pill.r { background: var(--red-soft); color: var(--red); }
+.pill.y { background: var(--yellow-soft); color: var(--yellow); }
+.sdot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex: none; background: var(--line); }
+.sdot.g { background: var(--green); } .sdot.r { background: var(--red); } .sdot.o { background: var(--orange); } .sdot.b { background: var(--brand); }
+
+/* shell pieces */
+.tabsbar { display: flex; gap: 2px; padding: 0 12px; background: var(--surface); border-bottom: 1px solid var(--line); align-items: center; }
+.tabsbar a { padding: 9px 12px; font-size: 12.5px; color: var(--muted); border-bottom: 2px solid transparent; display: flex; gap: 6px; align-items: center; }
+.tabsbar a.on { color: var(--fg); border-color: var(--brand); font-weight: 600; }
+.tabsbar small { font: 500 10.5px var(--mono); background: var(--surface-2); border-radius: 999px; padding: 0 6px; color: var(--muted); }
+.statusbar { height: 24px; border-top: 1px solid var(--line); background: var(--chrome); display: flex; align-items: center; gap: 16px; padding: 0 12px; font: 11px var(--mono); color: var(--muted); }
+.rail { border-right: 1px solid var(--line); background: var(--surface); display: grid; align-content: start; justify-items: center; gap: 6px; padding: 10px 0; }
+.rail i { width: 30px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font: 600 12px var(--mono); color: var(--muted); font-style: normal; position: relative; }
+.rail i.on { background: var(--brand-soft); color: var(--brand); }
+.rail i b { position: absolute; top: -2px; right: -3px; font: 600 9px/14px var(--mono); min-width: 14px; height: 14px; border-radius: 7px; background: var(--red); color: #fff; text-align: center; }
+.palette { position: absolute; left: 50%; top: 36px; transform: translateX(-50%); width: 470px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+.palette .pin { padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 14px; display: flex; gap: 8px; align-items: center; }
+.palette .grp { padding: 8px 14px 2px; font: 500 10.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.pi { padding: 7px 14px; display: flex; gap: 10px; align-items: center; font-size: 12.5px; }
+.pi.on { background: var(--brand-soft); }
+.side .sec { padding: 10px 8px 2px; font: 500 10.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.runcard { margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; padding: 8px; display: grid; gap: 5px; font-size: 11.5px; background: var(--bg); }
+.meter { height: 4px; border-radius: 2px; background: var(--surface-2); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--brand); }
+.projsw { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 7px; margin-bottom: 8px; font-size: 12px; font-weight: 600; background: var(--bg); }
+
+/* tables, cards */
+.tbl { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; font-size: 12.5px; }
+.tbl th { text-align: left; font-weight: 500; font-size: 11px; color: var(--muted); background: var(--surface-2); padding: 6px 10px; }
+.tbl td { padding: 8px 10px; border-top: 1px solid var(--line); vertical-align: middle; }
+.tbl tr.grp td { background: var(--surface-2); font: 600 10.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding: 5px 10px; }
+.tbl tr.sel td { background: color-mix(in srgb, var(--brand-soft) 60%, transparent); }
+.t2 { font-weight: 600; }
+.t2 small { display: block; font-weight: 400; font-size: 11px; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 8px; }
+.card.hot { border-color: color-mix(in srgb, var(--red) 45%, var(--line)); }
+.list { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; }
+.li { padding: 9px 12px; border-top: 1px solid var(--line); display: grid; gap: 3px; font-size: 12.5px; }
+.li:first-child { border-top: 0; }
+.li.on { background: var(--brand-soft); box-shadow: inset 3px 0 0 var(--brand); }
+.pane { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 10px; align-content: start; }
+.split { display: grid; gap: 12px; align-items: start; }
+
+/* code + diff */
+.code { font: 11.5px/1.6 var(--mono); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.code .fh { padding: 6px 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 11.5px; display: flex; gap: 8px; align-items: center; }
+.l { display: grid; grid-template-columns: 34px 14px minmax(0, 1fr); white-space: pre; }
+.l > span:first-child { color: var(--muted); text-align: right; padding-right: 8px; }
+.l > span:nth-child(2) { color: var(--muted); }
+.l.a { background: var(--add); } .l.d { background: var(--del); }
+.l.hl { box-shadow: inset 3px 0 0 var(--red); }
+.thread { margin: 4px 10px 6px 48px; border: 1px solid var(--line); border-left: 3px solid var(--red); border-radius: 6px; background: var(--surface); padding: 8px 10px; font: 12px/1.45 var(--sans); white-space: normal; display: grid; gap: 5px; }
+.thread.mj { border-left-color: var(--orange); }
+.minimap { width: 10px; border-left: 1px solid var(--line); background: var(--surface-2); position: relative; }
+.minimap i { position: absolute; left: 2px; width: 6px; height: 4px; border-radius: 2px; }
+.floatbar { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); background: var(--fg); color: var(--bg); border-radius: 10px; padding: 7px 8px 7px 14px; display: flex; gap: 12px; align-items: center; font-size: 12.5px; box-shadow: var(--shadow); white-space: nowrap; }
+.floatbar .btn { height: 26px; }
+.big { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); padding: 16px 18px; display: grid; gap: 10px; }
+.keys { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+/* CI */
+.log { background: var(--term-bg); color: var(--term-fg); font: 11px/1.65 var(--mono); border-radius: 8px; padding: 10px 12px; white-space: pre; overflow: hidden; }
+.log .err { color: var(--term-err); background: var(--term-err-bg); display: block; margin: 0 -12px; padding: 0 12px; }
+.log .ok { color: var(--term-ok); } .log .dim { color: var(--term-dim); }
+.log .sh { color: var(--term-fg); font-weight: 500; display: block; }
+.stages { display: flex; gap: 10px; align-items: flex-start; }
+.stage { display: grid; gap: 6px; align-content: start; flex: 1; min-width: 0; }
+.stage > span { font: 500 10.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
+.job { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 7px 10px; display: flex; gap: 8px; align-items: center; font-size: 12px; }
+.job.on { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-soft); }
+.job small { margin-left: auto; font: 11px var(--mono); color: var(--muted); }
+.conn { color: var(--line); align-self: center; font-family: var(--mono); }
+.cell { display: inline-flex; align-items: center; justify-content: center; gap: 5px; font: 500 11px var(--mono); border-radius: 5px; padding: 2px 8px; }
+.cell.g { background: var(--green-soft); color: var(--green); } .cell.r { background: var(--red-soft); color: var(--red); }
+.cell.n { background: var(--surface-2); color: var(--muted); } .cell.b { background: var(--brand-soft); color: var(--brand); }
+
+/* history */
+.kpi { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.kpi > div { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; font-size: 11.5px; color: var(--muted); }
+.kpi b { font: 600 20px var(--mono); display: block; color: var(--fg); font-variant-numeric: tabular-nums; }
+.bars { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); align-items: end; gap: 5px; height: 84px; padding: 10px 12px 6px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; }
+.bars i { display: block; background: var(--brand); border-radius: 3px 3px 0 0; }
+.bars i.p { background: color-mix(in srgb, var(--brand) 40%, var(--surface)); }
+.day { font: 600 10.5px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding: 10px 0 4px; }
+.ev { display: grid; grid-template-columns: 44px 14px minmax(0, 1fr); gap: 8px; align-items: start; padding: 5px 0; font-size: 12.5px; }
+.ev > span:first-child { font: 11px var(--mono); color: var(--muted); padding-top: 2px; }
+.ev .sdot { margin-top: 5px; }
+.drawer2 { border-left: 1px solid var(--line); background: var(--surface); padding: 14px; display: grid; gap: 8px; align-content: start; }
+
+/* settings */
+.tgl { width: 28px; height: 16px; border-radius: 999px; background: var(--line); position: relative; flex: none; display: inline-block; }
+.tgl::after { content: ""; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: var(--surface); }
+.tgl.on { background: var(--brand); } .tgl.on::after { left: 14px; }
+.slider { height: 4px; background: var(--line); border-radius: 2px; position: relative; width: 140px; }
+.slider i { position: absolute; top: 0; bottom: 0; left: 0; background: var(--brand); border-radius: 2px; }
+.slider b { position: absolute; top: -5px; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; background: var(--surface); border: 2px solid var(--brand); }
+.kv { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px dashed var(--line); font-size: 12.5px; }
+.kv:first-child { border-top: 0; }
+.kv span:first-child small { display: block; color: var(--muted); font-size: 11px; }
+.lock { font: 500 10.5px var(--mono); color: var(--green); background: var(--green-soft); padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+.chk { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px 12px; border-top: 1px solid var(--line); font-size: 12.5px; }
+.chk:first-child { border-top: 0; }
+.ic { width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font: 700 11px var(--mono); }
+.ic.g { background: var(--green-soft); color: var(--green); } .ic.r { background: var(--red-soft); color: var(--red); } .ic.o { background: var(--orange-soft); color: var(--orange); }
+.stb { display: flex; justify-content: center; gap: 4px; padding: 8px; background: var(--chrome); border-bottom: 1px solid var(--line); }
+.stb a { display: grid; justify-items: center; gap: 2px; font-size: 11px; color: var(--muted); padding: 5px 12px; border-radius: 7px; }
+.stb a i { font: 600 13px var(--mono); font-style: normal; }
+.stb a.on { background: var(--surface); color: var(--fg); box-shadow: 0 0 0 1px var(--line); }
+.gl { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); overflow: hidden; font-size: 12.5px; }
+.gl .gh { display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: var(--surface-2); border-bottom: 1px solid var(--line); font-size: 12px; }
+.gl .gb { padding: 10px 12px; display: grid; gap: 8px; }
+.sug { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; font: 11px/1.6 var(--mono); }
+.sug > div:first-child { padding: 4px 10px; background: var(--surface-2); font: 500 11px var(--sans); color: var(--muted); }
+.rulecard { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); padding: 10px 12px; display: grid; gap: 6px; font-size: 12px; }
+.spark { display: flex; align-items: end; gap: 2px; height: 18px; }
+.spark i { width: 4px; background: var(--brand); border-radius: 1px; opacity: .8; }
+.avatar.s { width: 20px; height: 20px; font-size: 9.5px; border-radius: 5px; }
+</style>
+
+<div class="wrap">
+
+  <header style="display:grid;gap:12px">
+    <div class="eyebrow">Warden · UI review, section by section</div>
+    <h1>Sections 2–9: screen variants</h1>
+    <p class="muted">Three options for each remaining screen, drawn with your real projects and findings. Pick one per section, or mix parts. Section 1 (add project) is being built as A + C.</p>
+    <div class="tracker" aria-label="Sections">
+      <span class="done">1 · Add project ✓ A + C</span><span class="now">2 · App shell &amp; nav</span><span class="now">3 · Inbox</span><span class="now">4 · Review</span><span class="now">5 · Approval queue</span><span class="now">6 · Local CI</span><span class="now">7 · History</span><span class="now">8 · Guardrails</span><span class="now">9 · Connections &amp; settings</span>
+    </div>
+    <nav class="jump" aria-label="Jump to section">
+      <a href="#s2">2 · Shell</a><a href="#s3">3 · Inbox</a><a href="#s4">4 · Review</a><a href="#s5">5 · Approval queue</a><a href="#s6">6 · Local CI</a><a href="#s7">7 · History</a><a href="#s8">8 · Guardrails</a><a href="#s9">9 · Connections</a><a href="#picks">Your picks</a>
+    </nav>
+  </header>
+
+  <!-- =================================================== S2 SHELL -->
+  <section class="screen" id="s2" aria-labelledby="s2h">
+    <div class="sechead">
+      <div class="eyebrow">Section 2</div>
+      <h2 id="s2h">App shell &amp; navigation</h2>
+    </div>
+    <div class="today">
+      <h3>Today</h3>
+      <ol>
+        <li>The title bar packs forge, poll countdown, hourly usage and the paused badge into 12px text that is easy to miss</li>
+        <li>Seven sidebar items, three of them setup pages you open once a month</li>
+        <li>No search and no keyboard way to jump to an MR or run an action</li>
+        <li>A running review is only visible on the Inbox row; on any other screen you can't tell Claude is busy</li>
+      </ol>
+    </div>
+
+    <!-- 2A -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">A</span><h2>Lean sidebar + live card</h2></div>
+        <p>Four work items plus one Settings entry. Guardrails, Projects and Connections become tabs inside Settings. A card pinned to the sidebar bottom shows the review in progress and the hourly limit.</p>
+        <div class="stat"><div><b>5</b>nav items</div><div><b>Always</b>visible progress</div></div>
+        <div class="pc">
+          <div class="p">Familiar layout, smallest change from today</div>
+          <div class="p">Claude's status is visible from every screen</div>
+          <div class="c">Sidebar still costs 170px of width on the Review screen</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="grid-template-columns:184px minmax(0,1fr);min-height:380px">
+          <nav class="side">
+            <div class="projsw"><span class="avatar s" style="background:#3f63c9">All</span>All projects<span class="grow"></span><span class="muted">▾</span></div>
+            <a class="on">Inbox<span>6</span></a><a>Approval queue<span>4</span></a><a>CI runs<span>1</span></a><a>History</a>
+            <span class="sec">&nbsp;</span>
+            <a>Settings</a>
+            <div class="runcard">
+              <div class="row" style="gap:6px"><span class="sdot b"></span><b>Reviewing !43</b></div>
+              <span class="muted">Acme: sales workflow stages</span>
+              <div class="meter"><i style="width:23%"></i></div>
+              <span class="path">turn 7 / 30 · read_file stages.py</span>
+            </div>
+            <div class="runcard">
+              <div class="row"><span class="grow">Reviews this hour</span><b class="mono">3 / 6</b></div>
+              <div class="meter"><i style="width:50%;background:var(--green)"></i></div>
+              <span class="path">next poll 2:41</span>
+            </div>
+          </nav>
+          <div class="main">
+            <div class="row"><h3 class="grow">Inbox</h3><span class="path">6 open merge requests</span></div>
+            <table class="tbl"><tr><th>MR</th><th>Title</th><th>Status</th></tr>
+              <tr><td class="mono muted">!41</td><td class="t2">Import review: row-by-row importer<small>entries_crm · rahul</small></td><td><span class="pill o">Awaiting approval</span></td></tr>
+              <tr><td class="mono muted">!43</td><td class="t2">Acme: sales workflow stages<small>entries_crm · ananya</small></td><td><span class="pill b">Reviewing 7/30</span></td></tr>
+              <tr><td class="mono muted">!38</td><td class="t2">Fix duplicate contact merge<small>entries_crm · vinay</small></td><td><span class="pill g">Posted 2</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 2B -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">B</span><h2>Top tabs + status bar</h2></div>
+        <p>No sidebar. Work screens are tabs under the title bar, settings sit behind a gear. A thin status bar at the bottom carries forge, poll, usage and posting state, like an editor.</p>
+        <div class="stat"><div><b>+170px</b>width for diffs</div><div><b>4</b>tabs</div></div>
+        <div class="pc">
+          <div class="p">Full width for the diff and the CI log</div>
+          <div class="p">Status bar is a fixed, predictable place for state</div>
+          <div class="c">No room for per-project lists in the nav</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="kbd">⌘K</span><span>⚙</span></div>
+        <div class="tabsbar"><a class="on">Inbox <small>6</small></a><a>Approval queue <small>4</small></a><a>CI runs <small>1</small></a><a>History</a><span class="grow"></span><span class="chip">All projects ▾</span></div>
+        <div class="main" style="min-height:300px">
+          <table class="tbl"><tr><th>MR</th><th>Title</th><th>Findings</th><th>CI</th><th>Status</th></tr>
+            <tr><td class="mono muted">!41</td><td class="t2">Import review: row-by-row importer<small>entries_crm · rahul · feat/import-review → develop</small></td><td><span class="sev bl">2</span> <span class="sev mj">1</span></td><td><span class="sdot r"></span></td><td><span class="pill o">Awaiting approval</span></td></tr>
+            <tr><td class="mono muted">!43</td><td class="t2">Acme: sales workflow stages<small>entries_crm · ananya · feat/acme-workflow → develop</small></td><td class="muted">…</td><td><span class="sdot b"></span></td><td><span class="pill b">Reviewing 7/30</span></td></tr>
+            <tr><td class="mono muted">!12</td><td class="t2">Entitlements cache TTL<small>entries_platform · vinay · feat/ttl → main</small></td><td class="muted">0</td><td><span class="sdot g"></span></td><td><span class="pill g">Clean</span></td></tr>
+          </table>
+        </div>
+        <div class="statusbar"><span><span class="okdot"></span> gitlab.com @vinay</span><span>Claude: reviewing !43 · 7/30</span><span>3 / 6 reviews this hour</span><span class="grow"></span><span>next poll 2:41</span><span style="color:var(--green)">posting on</span></div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 2C -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">C</span><h2>Icon rail + command palette</h2></div>
+        <p>A 48px icon rail with badges, and ⌘K as the main way around: jump to an MR, start a review, pause posting, open a project's guardrails. The mockup shows the palette open.</p>
+        <div class="stat"><div><b>48px</b>nav width</div><div><b>1</b>shortcut for everything</div></div>
+        <div class="pc">
+          <div class="p">Fastest once learned. Every action is one search away</div>
+          <div class="p">Nearly full width for content</div>
+          <div class="c">Icons alone are harder to learn for teammates</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none (palette searches data already loaded)</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="grid-template-columns:48px minmax(0,1fr);min-height:380px">
+          <nav class="rail"><i class="on">In<b>6</b></i><i>Ap<b>4</b></i><i>CI<b>1</b></i><i>Hi</i><span style="height:16px"></span><i>⚙</i></nav>
+          <div class="main dim">
+            <div class="bg" style="display:grid;gap:10px">
+              <div class="row"><h3 class="grow">Inbox</h3></div>
+              <table class="tbl"><tr><th>MR</th><th>Title</th><th>Status</th></tr>
+                <tr><td class="mono muted">!41</td><td class="t2">Import review: row-by-row importer<small>entries_crm</small></td><td><span class="pill o">Awaiting approval</span></td></tr>
+                <tr><td class="mono muted">!43</td><td class="t2">Acme: sales workflow stages<small>entries_crm</small></td><td><span class="pill b">Reviewing</span></td></tr>
+                <tr><td class="mono muted">!38</td><td class="t2">Fix duplicate contact merge<small>entries_crm</small></td><td><span class="pill g">Posted</span></td></tr>
+                <tr><td class="mono muted">!12</td><td class="t2">Entitlements cache TTL<small>entries_platform</small></td><td><span class="pill g">Clean</span></td></tr>
+              </table>
+            </div>
+            <div class="palette">
+              <div class="pin"><span class="muted">⌕</span><span>41</span><span class="grow"></span><span class="kbd">esc</span></div>
+              <div class="grp">Merge requests</div>
+              <div class="pi on"><span class="mono muted">!41</span><span class="grow">Import review: row-by-row importer</span><span class="kbd">↵ open</span></div>
+              <div class="pi"><span class="mono muted">!41</span><span class="grow">Post 3 approved notes to !41</span><span class="kbd">⌘↵</span></div>
+              <div class="grp">Actions</div>
+              <div class="pi"><span class="grow">Re-run review on !41</span></div>
+              <div class="pi"><span class="grow">Pause posting everywhere</span><span class="kbd">⌘⇧P</span></div>
+              <div class="pi"><span class="grow">Open entries_crm guardrails</span></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="rec"><span class="eyebrow">Recommended</span><p><b>A, plus C's ⌘K palette.</b> Labels stay readable for teammates, the live card answers "is Claude busy?", and the palette gives you keyboard speed. B's status bar is the alternative if you prefer full width over the sidebar.</p></div>
+  </section>
+
+  <!-- =================================================== S3 INBOX -->
+  <section class="screen" id="s3" aria-labelledby="s3h">
+    <div class="sechead">
+      <div class="eyebrow">Section 3</div>
+      <h2 id="s3h">Inbox</h2>
+    </div>
+    <div class="today">
+      <h3>Today</h3>
+      <ol>
+        <li>One flat table, so MRs that need you sit beside ones that are done or skipped</li>
+        <li>Status is a long text pill, and findings per MR are not shown at all</li>
+        <li>The row button changes label (Review, Watch, Open, View, Retry), so its meaning shifts row to row</li>
+        <li>"Review MR…" opens a dialog with four fields for a local branch review</li>
+        <li>To see what Claude found you must open the full Review screen</li>
+      </ol>
+    </div>
+
+    <!-- 3A -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">A</span><h2>Grouped table</h2></div>
+        <p>Same table, split into groups by what you need to do: Needs you, Reviewing, Done, Skipped. Columns show severity counts and a CI dot instead of long text. Click a row to open it.</p>
+        <div class="stat"><div><b>1</b>glance to triage</div><div><b>Dense</b>20+ MRs fit</div></div>
+        <div class="pc">
+          <div class="p">Scales to many projects and MRs</div>
+          <div class="p">Small change to build</div>
+          <div class="c">Still needs a full page jump to read findings</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none (counts already in <code>MrRow.finding_counts</code>)</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:400px">
+          <nav class="side"><a class="on">Inbox<span>6</span></a><a>Approval queue<span>4</span></a><a>CI runs<span>1</span></a><a>History</a><a>Settings</a></nav>
+          <div class="main">
+            <div class="row"><h3 class="grow">Inbox</h3><span class="chip">All projects ▾</span><span class="btn">Poll now</span><span class="btn pri">Review MR…</span></div>
+            <table class="tbl">
+              <tr><th style="width:44px">MR</th><th>Title</th><th>Findings</th><th>CI</th><th>Size</th><th></th></tr>
+              <tr class="grp"><td colspan="6">Needs you · 2</td></tr>
+              <tr><td class="mono muted">!41</td><td class="t2">Import review: row-by-row importer<small>entries_crm · rahul · → develop</small></td><td><span class="sev bl">2 blocker</span> <span class="sev mj">1 major</span></td><td><span class="sdot r"></span> <span class="path">1 failed</span></td><td class="mono" style="font-size:11.5px"><span style="color:var(--green)">+612</span> <span style="color:var(--red)">−88</span></td><td><span class="btn">Approve…</span></td></tr>
+              <tr><td class="mono muted">!9</td><td class="t2">Quiz attempts API<small>entries_lnd · priya · → develop</small></td><td><span class="sev mn">2 minor</span></td><td><span class="sdot o"></span> <span class="path">semgrep missing</span></td><td class="mono" style="font-size:11.5px"><span style="color:var(--green)">+180</span> <span style="color:var(--red)">−4</span></td><td><span class="btn">Approve…</span></td></tr>
+              <tr class="grp"><td colspan="6">Reviewing · 1</td></tr>
+              <tr><td class="mono muted">!43</td><td class="t2">Acme: sales workflow stages<small>entries_crm · ananya · → develop</small></td><td><div class="meter" style="width:90px"><i style="width:23%"></i></div></td><td><span class="sdot b"></span></td><td class="mono" style="font-size:11.5px"><span style="color:var(--green)">+214</span> <span style="color:var(--red)">−30</span></td><td><span class="btn ghost">Watch</span></td></tr>
+              <tr class="grp"><td colspan="6">Done · 2 &nbsp; Skipped · 1</td></tr>
+              <tr><td class="mono muted">!38</td><td class="t2">Fix duplicate contact merge<small>entries_crm · vinay · → main</small></td><td><span class="pill g">2 posted</span></td><td><span class="sdot g"></span></td><td class="mono" style="font-size:11.5px"><span style="color:var(--green)">+41</span> <span style="color:var(--red)">−12</span></td><td></td></tr>
+            </table>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 3B -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">B</span><h2>Triage cards</h2></div>
+        <p>One card per MR, most urgent first. Each card shows Claude's verdict, the top findings and the actions you'd take next, so many MRs can be handled without opening them.</p>
+        <div class="stat"><div><b>1</b>click to approve and post</div><div><b>~4</b>MRs per screen</div></div>
+        <div class="pc">
+          <div class="p">Act straight from the inbox for simple MRs</div>
+          <div class="p">Verdict and top issues readable at a glance</div>
+          <div class="c">Low density once you watch many projects</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span><code>list_mrs</code> returns top 2 findings per MR</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:420px">
+          <nav class="side"><a class="on">Inbox<span>6</span></a><a>Approval queue<span>4</span></a><a>CI runs<span>1</span></a><a>History</a><a>Settings</a></nav>
+          <div class="main">
+            <div class="row"><h3 class="grow">Inbox</h3><span class="chip">Needs you · 2</span><span class="chip">Reviewing · 1</span><span class="chip">Done · 3</span></div>
+            <div class="card hot">
+              <div class="row"><span class="mono muted">!41</span><b class="grow">Import review: row-by-row importer</b><span class="pill o">Request changes</span></div>
+              <div class="path">entries_crm · rahul · feat/import-review → develop · CI: pytest failed</div>
+              <div style="display:grid;gap:4px;font-size:12.5px">
+                <div class="row" style="gap:8px"><span class="sev bl">blocker</span><span class="grow">SQL built with an f-string in <code class="mono">import_rows()</code></span><span class="path">importer.py:17</span></div>
+                <div class="row" style="gap:8px"><span class="sev bl">blocker</span><span class="grow">Whitelisted method skips the permission check</span><span class="path">importer.py:13</span></div>
+                <div class="path">+ 2 more</div>
+              </div>
+              <div class="row"><span class="grow"></span><span class="btn ghost">Dismiss all</span><span class="btn">Open review</span><span class="btn pri">Approve 4 &amp; post</span></div>
+            </div>
+            <div class="card">
+              <div class="row"><span class="mono muted">!43</span><b class="grow">Acme: sales workflow stages</b><span class="pill b">Reviewing 7/30</span></div>
+              <div class="meter"><i style="width:23%"></i></div>
+              <div class="path">read_file entries_crm/acme/stages.py</div>
+            </div>
+            <div class="card">
+              <div class="row"><span class="mono muted">!12</span><b class="grow">Entitlements cache TTL</b><span class="pill g">Approve</span></div>
+              <div class="path">entries_platform · no findings · CI passed</div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 3C -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">C</span><h2>List + preview</h2></div>
+        <p>Mail-style split. A compact MR list on the left, and a preview of the selected MR on the right with verdict, findings, CI jobs and actions. ↑↓ moves through MRs, Enter opens the full review.</p>
+        <div class="stat"><div><b>0</b>page jumps to triage</div><div><b>↑↓ ↵</b>keyboard</div></div>
+        <div class="pc">
+          <div class="p">Read and act on any MR without losing your place</div>
+          <div class="p">Keyboard friendly</div>
+          <div class="c">Needs a wider window (1200px+) to feel comfortable</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none (uses <code>get_run</code>)</div>
+      </div>
+      <div class="scroller"><div class="win" style="min-width:900px">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="grid-template-columns:150px 260px minmax(0,1fr);min-height:420px">
+          <nav class="side"><a class="on">Inbox<span>6</span></a><a>Approval queue<span>4</span></a><a>CI runs<span>1</span></a><a>History</a><a>Settings</a></nav>
+          <div style="border-right:1px solid var(--line);background:var(--surface)">
+            <div style="padding:10px 12px;border-bottom:1px solid var(--line)" class="in">⌕ Filter MRs</div>
+            <div class="li on"><div class="row"><span class="mono muted">!41</span><span class="grow"></span><span class="sev bl">2</span><span class="sev mj">1</span></div><b>Import review: row-by-row importer</b><span class="path">entries_crm · rahul · 2h</span></div>
+            <div class="li"><div class="row"><span class="mono muted">!43</span><span class="grow"></span><span class="pill b">7/30</span></div><b>Acme: sales workflow stages</b><span class="path">entries_crm · ananya · 20m</span></div>
+            <div class="li"><div class="row"><span class="mono muted">!9</span><span class="grow"></span><span class="sev mn">2</span></div><b>Quiz attempts API</b><span class="path">entries_lnd · priya · 1d</span></div>
+            <div class="li"><div class="row"><span class="mono muted">!38</span><span class="grow"></span><span class="pill g">posted</span></div><b>Fix duplicate contact merge</b><span class="path">entries_crm · vinay · 1d</span></div>
+          </div>
+          <div class="main">
+            <div class="row"><span class="mono muted">!41</span><h3 class="grow">Import review: row-by-row importer</h3><span class="pill o">Request changes</span></div>
+            <p class="muted" style="font-size:12.5px">The importer writes rows with raw SQL built from user input and commits per row. Fix the permission check and parameterise the query before merge.</p>
+            <div class="list">
+              <div class="li"><div class="row"><span class="sev bl">blocker</span><b class="grow">SQL built with an f-string</b><span class="path">importer.py:17 · FR-002</span></div></div>
+              <div class="li"><div class="row"><span class="sev bl">blocker</span><b class="grow">Whitelisted method skips permission check</b><span class="path">importer.py:13 · FR-001</span></div></div>
+              <div class="li"><div class="row"><span class="sev mj">major</span><b class="grow"><code class="mono">frappe.db.commit()</code> inside the loop</b><span class="path">importer.py:18 · FR-007</span></div></div>
+            </div>
+            <div class="row" style="gap:6px;font-size:12px"><span class="cell g">lint 12s</span><span class="cell r">pytest 2 failed</span><span class="cell n">semgrep not installed</span></div>
+            <div class="row"><span class="grow"></span><span class="btn">Open review ↵</span><span class="btn pri">Approve 3 &amp; post</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="rec"><span class="eyebrow">Recommended</span><p><b>C, with A's groups inside the left list.</b> You triage without leaving the inbox, and grouping keeps "needs you" at the top. B's one-click "Approve &amp; post" button can live in C's preview.</p></div>
+  </section>
+
+  <!-- =================================================== S4 REVIEW -->
+  <section class="screen" id="s4" aria-labelledby="s4h">
+    <div class="sechead">
+      <div class="eyebrow">Section 4</div>
+      <h2 id="s4h">Review</h2>
+    </div>
+    <div class="today">
+      <h3>Today</h3>
+      <ol>
+        <li>Three fixed columns (files, diff, findings) leave the diff about 500px wide on a 13" screen</li>
+        <li>Three overlapping states: draft, approved and "ticked for posting". It is unclear which one posts</li>
+        <li>The footer holds five controls, with the post button's label running to 40+ characters</li>
+        <li>No keyboard flow for going through findings one by one</li>
+      </ol>
+    </div>
+
+    <!-- 4A -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">A</span><h2>Diff-first, inline threads</h2></div>
+        <p>The diff takes the full width. Findings appear as comment threads under their line, the way they will look on GitLab. A thin severity strip on the right jumps between them. A floating bar posts what you approved.</p>
+        <div class="stat"><div><b>~2×</b>wider diff</div><div><b>1</b>state per finding</div></div>
+        <div class="pc">
+          <div class="p">Reads like the GitLab MR page you already know</div>
+          <div class="p">Context around each finding is right there</div>
+          <div class="c">Slow to walk through 15 findings spread over 10 files</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="main" style="padding:0;gap:0;min-height:430px;position:relative">
+          <div class="row" style="padding:9px 14px;border-bottom:1px solid var(--line);background:var(--surface)"><span class="muted">←</span><span class="mono muted">!41</span><b class="grow">Import review: row-by-row importer</b><span class="chip">importer.py ▾ 1 of 4 files</span><span class="pill o">Request changes</span></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) 10px">
+            <div class="code" style="border:0;border-radius:0">
+              <div class="fh"><b>entries_crm/api/importer.py</b><span class="path">+48 −6</span></div>
+              <div class="l"><span>12</span><span> </span><span></span></div>
+              <div class="l a"><span>13</span><span>+</span><span>@frappe.whitelist()</span></div>
+              <div class="thread"><div class="row"><span class="sev bl">blocker</span><b class="grow">Whitelisted method skips the permission check</b><span class="path">FR-001 · 0.92</span></div><span>Any logged-in user can import into any doctype. Call <code class="mono">frappe.has_permission(doctype, "write", throw=True)</code> first.</span><div class="row"><span class="grow"></span><span class="btn ghost" style="height:24px">Dismiss</span><span class="btn ghost" style="height:24px">Edit</span><span class="btn" style="height:24px">✓ Approved</span></div></div>
+              <div class="l a"><span>14</span><span>+</span><span>def import_rows(doctype, rows):</span></div>
+              <div class="l a"><span>15</span><span>+</span><span>    for row in json.loads(rows):</span></div>
+              <div class="l a"><span>16</span><span>+</span><span>        name = row.get("name")</span></div>
+              <div class="l a hl"><span>17</span><span>+</span><span>        frappe.db.sql(f"update `tab{doctype}` set status='Imported' where name='{name}'")</span></div>
+              <div class="thread"><div class="row"><span class="sev bl">blocker</span><b class="grow">SQL built with an f-string</b><span class="path">FR-002 · regex</span></div><div class="row"><span class="grow"></span><span class="btn ghost" style="height:24px">Dismiss</span><span class="btn pri" style="height:24px">Approve</span></div></div>
+              <div class="l a"><span>18</span><span>+</span><span>        frappe.db.commit()</span></div>
+            </div>
+            <div class="minimap"><i style="top:18%;background:var(--red)"></i><i style="top:44%;background:var(--red)"></i><i style="top:62%;background:var(--orange)"></i><i style="top:80%;background:var(--yellow)"></i></div>
+          </div>
+          <div class="floatbar"><span>1 approved · 3 to decide</span><span class="btn ghost" style="color:var(--bg)">Next ↓</span><span class="btn pri">Post 1 note</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 4B -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">B</span><h2>One finding at a time</h2></div>
+        <p>A focused walkthrough. Each finding shows as a large card with ±6 lines of code. Press A to approve, E to edit, D to dismiss, and it moves to the next. The full diff is one tab away.</p>
+        <div class="stat"><div><b>1</b>key per decision</div><div><b>3 of 5</b>progress shown</div></div>
+        <div class="pc">
+          <div class="p">Fastest way to clear a review with many findings</div>
+          <div class="p">Each decision is explicit, no hidden checkbox state</div>
+          <div class="c">Less sense of the whole change while deciding</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="tabsbar"><span class="mono muted" style="margin-right:8px">!41</span><a class="on">Findings <small>5</small></a><a>Diff <small>4 files</small></a><a>CI <small>1 failed</small></a><a>Summary</a><span class="grow"></span><span class="pill o">Request changes</span></div>
+        <div class="main" style="min-height:400px;max-width:720px;margin:0 auto;width:100%">
+          <div class="row"><span class="path grow">Finding 3 of 5 · 2 approved · 0 dismissed</span><div class="meter" style="width:160px"><i style="width:40%"></i></div></div>
+          <div class="big">
+            <div class="row"><span class="sev mj">major</span><b class="grow" style="font-size:14px"><code class="mono">frappe.db.commit()</code> inside the loop</b><span class="path">FR-007 · regex</span></div>
+            <p style="font-size:13px">Committing per row breaks the request transaction: a failure on row 400 leaves 399 rows imported. Let the request commit once, or batch with <code class="mono">frappe.db.savepoint</code>.</p>
+            <div class="code">
+              <div class="fh"><span class="path">entries_crm/api/importer.py</span></div>
+              <div class="l a"><span>15</span><span>+</span><span>    for row in json.loads(rows):</span></div>
+              <div class="l a"><span>16</span><span>+</span><span>        name = row.get("name")</span></div>
+              <div class="l a"><span>17</span><span>+</span><span>        frappe.db.sql(...)</span></div>
+              <div class="l a hl"><span>18</span><span>+</span><span>        frappe.db.commit()</span></div>
+              <div class="l a"><span>19</span><span>+</span><span>    return {"ok": True}</span></div>
+            </div>
+            <div class="keys"><span class="btn pri">Approve <span class="kbd" style="background:transparent;color:inherit">A</span></span><span class="btn">Edit <span class="kbd">E</span></span><span class="btn">Dismiss <span class="kbd">D</span></span><span class="grow"></span><span class="btn ghost">← Prev</span><span class="btn ghost">Skip →</span></div>
+          </div>
+          <div class="row"><span class="muted grow" style="font-size:12px">Guardrails dropped 2: one duplicate of an open thread, one below 0.6 confidence.</span><span class="btn">Post 2 approved</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 4C -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">C</span><h2>Findings list + context pane</h2></div>
+        <p>A verdict banner on top. Below it, findings grouped by severity on the left, each with an Approve or Dismiss switch. The right pane shows the selected finding in its file, with the file's full diff below.</p>
+        <div class="stat"><div><b>2</b>columns instead of 3</div><div><b>Grouped</b>by severity</div></div>
+        <div class="pc">
+          <div class="p">Overview and detail side by side</div>
+          <div class="p">Verdict and summary read first, before details</div>
+          <div class="c">The file tree goes away; navigation is by finding only</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="row" style="padding:10px 14px;background:var(--orange-soft);border-bottom:1px solid var(--line);font-size:12.5px"><span class="pill o">Request changes</span><span class="grow">Raw SQL from user input and a missing permission check. Fix both before merge.</span><span class="path">9 turns · 31s</span></div>
+        <div style="display:grid;grid-template-columns:300px minmax(0,1fr);min-height:380px">
+          <div style="border-right:1px solid var(--line);background:var(--surface)">
+            <div class="li" style="background:var(--surface-2)"><span class="eyebrow">Blocker · 2</span></div>
+            <div class="li on"><div class="row"><b class="grow">SQL built with an f-string</b><span class="tgl on"></span></div><span class="path">importer.py:17 · FR-002</span></div>
+            <div class="li"><div class="row"><b class="grow">Skips permission check</b><span class="tgl on"></span></div><span class="path">importer.py:13 · FR-001</span></div>
+            <div class="li" style="background:var(--surface-2)"><span class="eyebrow">Major · 1</span></div>
+            <div class="li"><div class="row"><b class="grow">Commit inside loop</b><span class="tgl on"></span></div><span class="path">importer.py:18 · FR-007</span></div>
+            <div class="li" style="background:var(--surface-2)"><span class="eyebrow">Minor · 1 · Dropped · 2</span></div>
+            <div class="li"><div class="row"><b class="grow">Unbounded UPDATE loop</b><span class="tgl"></span></div><span class="path">importer.py:24</span></div>
+          </div>
+          <div class="main">
+            <div class="row"><span class="sev bl">blocker</span><b class="grow">SQL built with an f-string in <code class="mono">import_rows()</code></b><span class="btn" style="height:26px">Edit note</span></div>
+            <p class="muted" style="font-size:12.5px">Use <code class="mono">frappe.db.set_value(doctype, name, "status", "Imported")</code> or a parameterised query.</p>
+            <div class="code">
+              <div class="fh"><span class="path">entries_crm/api/importer.py · +48 −6</span></div>
+              <div class="l a"><span>16</span><span>+</span><span>        name = row.get("name")</span></div>
+              <div class="l a hl"><span>17</span><span>+</span><span>        frappe.db.sql(f"update `tab{doctype}` set ...")</span></div>
+              <div class="l a"><span>18</span><span>+</span><span>        frappe.db.commit()</span></div>
+            </div>
+            <div class="row"><span class="grow"></span><span class="btn">Copy as markdown</span><span class="btn pri">Post 3 notes + summary</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="rec"><span class="eyebrow">Recommended</span><p><b>B as the default view, with A as the Diff tab.</b> B clears findings fast with single keys. A shows them in context when you want the whole change. Either way, drop the checkbox: each finding is Approved, Dismissed or undecided, and Post sends the approved ones.</p></div>
+  </section>
+
+  <!-- =================================================== S5 APPROVAL QUEUE -->
+  <section class="screen" id="s5" aria-labelledby="s5h">
+    <div class="sechead">
+      <div class="eyebrow">Section 5</div>
+      <h2 id="s5h">Approval queue</h2>
+    </div>
+    <div class="today">
+      <h3>Today</h3>
+      <ol>
+        <li>Large finding cards, so about three fit on screen</li>
+        <li>You approve findings, then post separately for each MR. Five MRs means five Post buttons</li>
+        <li>No preview of how the note will look once posted on GitLab</li>
+        <li>Partly duplicates the Review screen, with different controls for the same job</li>
+      </ol>
+    </div>
+
+    <!-- 5A -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">A</span><h2>One list, bulk actions</h2></div>
+        <p>Every pending finding from every MR in one dense list. Select with the keyboard, approve or dismiss in bulk, then post everything approved in one go.</p>
+        <div class="stat"><div><b>1</b>Post for all MRs</div><div><b>12+</b>findings per screen</div></div>
+        <div class="pc">
+          <div class="p">Clear a morning backlog in a minute</div>
+          <div class="p">Same keys as the Review walkthrough (A, D, E)</div>
+          <div class="c">Less code context per finding</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span><code>post_findings</code> accepts findings from several runs</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:380px">
+          <nav class="side"><a>Inbox<span>6</span></a><a class="on">Approval queue<span>6</span></a><a>CI runs<span>1</span></a><a>History</a><a>Settings</a></nav>
+          <div class="main">
+            <div class="row"><h3 class="grow">Approval queue</h3><span class="path">6 findings · 3 merge requests</span></div>
+            <div class="row" style="font-size:12px"><span class="cb on"></span><span class="grow">3 selected</span><span class="btn">Approve <span class="kbd">A</span></span><span class="btn">Dismiss <span class="kbd">D</span></span></div>
+            <table class="tbl">
+              <tr><th style="width:24px"></th><th>Finding</th><th>Where</th><th>State</th></tr>
+              <tr class="grp"><td colspan="4">!41 Import review: row-by-row importer · entries_crm</td></tr>
+              <tr class="sel"><td><span class="cb on"></span></td><td><span class="sev bl">blocker</span> SQL built with an f-string</td><td class="path">importer.py:17</td><td><span class="pill b">Approved</span></td></tr>
+              <tr class="sel"><td><span class="cb on"></span></td><td><span class="sev bl">blocker</span> Skips permission check</td><td class="path">importer.py:13</td><td><span class="pill b">Approved</span></td></tr>
+              <tr class="sel"><td><span class="cb on"></span></td><td><span class="sev mj">major</span> Commit inside loop</td><td class="path">importer.py:18</td><td><span class="pill n">Undecided</span></td></tr>
+              <tr class="grp"><td colspan="4">!9 Quiz attempts API · entries_lnd</td></tr>
+              <tr><td><span class="cb"></span></td><td><span class="sev mn">minor</span> N+1 query in <code class="mono">get_attempts</code></td><td class="path">api.py:52</td><td><span class="pill n">Undecided</span></td></tr>
+              <tr><td><span class="cb"></span></td><td><span class="sev mn">minor</span> Missing index on <code class="mono">quiz</code></td><td class="path">quiz_attempt.json</td><td><span class="pill n">Undecided</span></td></tr>
+            </table>
+            <div class="row"><span class="grow"></span><span class="btn pri">Post 2 approved to 1 MR</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 5B -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">B</span><h2>Fold it into the Inbox</h2></div>
+        <p>Drop the separate screen. The Inbox "Needs you" group is the queue, and approving happens in Review. The sidebar loses one item, and there is one place to decide on findings.</p>
+        <div class="stat"><div><b>−1</b>screen</div><div><b>1</b>way to approve</div></div>
+        <div class="pc">
+          <div class="p">Less to learn and less code to keep</div>
+          <div class="p">No two screens drifting apart</div>
+          <div class="c">No bulk posting across several MRs</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none (removes a screen)</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:330px">
+          <nav class="side"><a class="on">Inbox<span>6</span></a><a>CI runs<span>1</span></a><a>History</a><a>Settings</a></nav>
+          <div class="main">
+            <div class="row" style="padding:10px 12px;border-radius:8px;background:var(--orange-soft);font-size:12.5px"><b class="grow">6 findings wait for you in 2 merge requests</b><span class="btn">Start with !41 →</span></div>
+            <table class="tbl">
+              <tr class="grp"><td colspan="4">Needs you · 2</td></tr>
+              <tr><td class="mono muted">!41</td><td class="t2">Import review: row-by-row importer<small>entries_crm</small></td><td><span class="sev bl">2</span> <span class="sev mj">1</span> <span class="sev mn">1</span></td><td><span class="btn">Decide 4</span></td></tr>
+              <tr><td class="mono muted">!9</td><td class="t2">Quiz attempts API<small>entries_lnd</small></td><td><span class="sev mn">2</span></td><td><span class="btn">Decide 2</span></td></tr>
+              <tr class="grp"><td colspan="4">Reviewing · 1</td></tr>
+              <tr><td class="mono muted">!43</td><td class="t2">Acme: sales workflow stages<small>entries_crm</small></td><td class="muted">…</td><td><span class="btn ghost">Watch</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 5C -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">C</span><h2>Queue with note preview</h2></div>
+        <p>A list on the left. On the right, the selected finding rendered exactly as GitLab will show it, with the suggestion block. Edit the text in place before approving.</p>
+        <div class="stat"><div><b>WYSIWYG</b>note preview</div><div><b>Edit</b>in place</div></div>
+        <div class="pc">
+          <div class="p">No surprises about what lands on the MR</div>
+          <div class="p">Good for tuning tone before you trust Auto mode</div>
+          <div class="c">One finding at a time, slower in bulk</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span><code>preview_note(finding_id)</code> returns the formatted body</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="grid-template-columns:150px 250px minmax(0,1fr);min-height:400px">
+          <nav class="side"><a>Inbox<span>6</span></a><a class="on">Approval queue<span>6</span></a><a>CI runs</a><a>History</a><a>Settings</a></nav>
+          <div style="border-right:1px solid var(--line);background:var(--surface)">
+            <div class="li" style="background:var(--surface-2)"><span class="path">!41 · entries_crm</span></div>
+            <div class="li on"><div class="row"><span class="sev bl">blocker</span><b class="grow">SQL f-string</b></div><span class="path">importer.py:17</span></div>
+            <div class="li"><div class="row"><span class="sev bl">blocker</span><b class="grow">Permission check</b></div><span class="path">importer.py:13</span></div>
+            <div class="li"><div class="row"><span class="sev mj">major</span><b class="grow">Commit in loop</b></div><span class="path">importer.py:18</span></div>
+            <div class="li" style="background:var(--surface-2)"><span class="path">!9 · entries_lnd</span></div>
+            <div class="li"><div class="row"><span class="sev mn">minor</span><b class="grow">N+1 query</b></div><span class="path">api.py:52</span></div>
+          </div>
+          <div class="main">
+            <span class="lbl">Will be posted on gitlab.com as</span>
+            <div class="gl">
+              <div class="gh"><span class="avatar s" style="background:#6b4fbb">W</span><b>warden-bot</b><span class="muted">commented on importer.py line 17</span></div>
+              <div class="gb">
+                <div><b>🔴 Blocker · SQL built with an f-string</b></div>
+                <div><code class="mono">doctype</code> and <code class="mono">name</code> come from the request and go straight into SQL. Use <code class="mono">frappe.db.set_value</code> instead.</div>
+                <div class="sug"><div>Suggested change</div><div class="l d"><span>17</span><span>-</span><span>frappe.db.sql(f"update `tab{doctype}` ...")</span></div><div class="l a"><span>17</span><span>+</span><span>frappe.db.set_value(doctype, name, "status", "Imported")</span></div></div>
+                <div class="path">FR-002 · Warden review of a1f9c2e</div>
+              </div>
+            </div>
+            <div class="row"><span class="btn">Edit text</span><span class="grow"></span><span class="btn">Dismiss</span><span class="btn pri">Approve</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="rec"><span class="eyebrow">Recommended</span><p><b>A, with C's preview as a side pane that opens on demand.</b> Bulk posting across MRs is the one thing Review cannot do, so it earns a screen. If you would rather keep fewer screens, B is the honest alternative.</p></div>
+  </section>
+
+  <!-- =================================================== S6 LOCAL CI -->
+  <section class="screen" id="s6" aria-labelledby="s6h">
+    <div class="sechead">
+      <div class="eyebrow">Section 6</div>
+      <h2 id="s6h">Local CI</h2>
+    </div>
+    <div class="today">
+      <h3>Today</h3>
+      <ol>
+        <li>You pick the run from a dropdown, then a job from a list, then read a raw log</li>
+        <li>Failing lines are not highlighted, so you scroll the whole log to find the error</li>
+        <li>"Not installed" and "failed" look much the same at a glance</li>
+        <li>No duration or order of jobs, so you can't see what ran first or what is slow</li>
+      </ol>
+    </div>
+
+    <!-- 6A -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">A</span><h2>Pipeline graph</h2></div>
+        <p>Jobs drawn as stages, left to right, the way GitLab shows pipelines: prepare, check, test, scan. Click a job to see its log below, with error lines highlighted and a "Jump to first error" button.</p>
+        <div class="stat"><div><b>1</b>click to the error</div><div><b>Order</b>and timing visible</div></div>
+        <div class="pc">
+          <div class="p">Matches the mental model from GitLab CI</div>
+          <div class="p">Missing tools clearly separated from failures</div>
+          <div class="c">Takes vertical space before the log starts</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>job <code>stage</code> field in <code>.warden.yml</code> (defaults by name)</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:420px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue<span>6</span></a><a class="on">CI runs<span>1</span></a><a>History</a><a>Settings</a></nav>
+          <div class="main">
+            <div class="row"><span class="mono muted">!41</span><h3 class="grow">Import review: row-by-row importer</h3><span class="path">a1f9c2e · 1m 48s</span><span class="btn">Re-run failed</span></div>
+            <div class="stages">
+              <div class="stage"><span>Prepare</span><div class="job"><span class="sdot g"></span>worktree<small>4s</small></div></div>
+              <span class="conn">→</span>
+              <div class="stage"><span>Check</span><div class="job"><span class="sdot g"></span>lint<small>12s</small></div><div class="job"><span class="sdot g"></span>secrets<small>2s</small></div></div>
+              <span class="conn">→</span>
+              <div class="stage"><span>Test</span><div class="job on"><span class="sdot r"></span>pytest<small>1m 31s</small></div></div>
+              <span class="conn">→</span>
+              <div class="stage"><span>Scan</span><div class="job" style="border-style:dashed"><span class="sdot"></span>semgrep<small>not installed</small></div></div>
+            </div>
+            <div class="row"><b class="grow">pytest · 2 failed, 41 passed</b><span class="btn">Jump to first error</span><span class="btn ghost">Raw log</span></div>
+            <div class="log"><span class="dim">$ bench --site test.localhost run-tests --app entries_crm</span>
+<span class="ok">test_import_rows_creates_log ... ok</span>
+<span class="err">FAILED test_importer.py::test_import_rows_rejects_guest - AssertionError: PermissionError not raised</span>
+<span class="err">FAILED test_importer.py::test_import_rows_rollback - 399 != 0</span>
+<span class="dim">========= 2 failed, 41 passed in 91.2s =========</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 6B -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">B</span><h2>Matrix across MRs</h2></div>
+        <p>A grid with one row per MR and one column per job. Each cell shows status and time. Click a cell to open its log in a drawer. Good for seeing which job breaks most often.</p>
+        <div class="stat"><div><b>All</b>MRs at once</div><div><b>Patterns</b>visible</div></div>
+        <div class="pc">
+          <div class="p">Spot a flaky or slow job across the team's MRs</div>
+          <div class="p">Missing tools show as one grey column, obvious to fix</div>
+          <div class="c">Log reading happens in a drawer, less room</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span><code>list_ci_jobs(limit)</code> across recent runs</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:330px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue<span>6</span></a><a class="on">CI runs<span>1</span></a><a>History</a><a>Settings</a></nav>
+          <div class="main">
+            <div class="row"><h3 class="grow">CI runs</h3><span class="chip">Last 7 days ▾</span></div>
+            <table class="tbl">
+              <tr><th>Merge request</th><th>lint</th><th>secrets</th><th>pytest</th><th>semgrep</th></tr>
+              <tr><td class="t2">!41 Import review<small>entries_crm · a1f9c2e</small></td><td><span class="cell g">12s</span></td><td><span class="cell g">2s</span></td><td><span class="cell r">2 failed</span></td><td><span class="cell n">missing</span></td></tr>
+              <tr><td class="t2">!43 Acme workflow<small>entries_crm · 7c01d9e</small></td><td><span class="cell g">11s</span></td><td><span class="cell g">2s</span></td><td><span class="cell b">running</span></td><td><span class="cell n">missing</span></td></tr>
+              <tr><td class="t2">!38 Duplicate contact merge<small>entries_crm · 0e4ab21</small></td><td><span class="cell g">10s</span></td><td><span class="cell g">1s</span></td><td><span class="cell g">1m 22s</span></td><td><span class="cell n">missing</span></td></tr>
+              <tr><td class="t2">!9 Quiz attempts API<small>entries_lnd · 5d3e8f0</small></td><td><span class="cell r">3 errors</span></td><td><span class="cell g">1s</span></td><td><span class="cell g">48s</span></td><td><span class="cell n">missing</span></td></tr>
+            </table>
+            <div class="row" style="font-size:12px"><span class="sdot o"></span><span class="grow">semgrep is not installed, so it is skipped on every run.</span><span class="btn">Copy install command</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 6C -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">C</span><h2>Log-first, parsed errors</h2></div>
+        <p>A large log with collapsible sections per job, like GitHub Actions. Above it, Warden parses failures into a short list with file and line links that open in Review.</p>
+        <div class="stat"><div><b>Parsed</b>pytest, ruff, eslint</div><div><b>Links</b>into Review</div></div>
+        <div class="pc">
+          <div class="p">Goes from "pytest failed" to the failing test in one click</div>
+          <div class="p">Full log still there when you need it</div>
+          <div class="c">Parsers per tool to maintain</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>failure parsers for pytest, ruff, eslint output</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:420px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue<span>6</span></a><a class="on">CI runs<span>1</span></a><a>History</a><a>Settings</a></nav>
+          <div class="main">
+            <div class="row"><span class="mono muted">!41</span><h3 class="grow">Local CI</h3><span class="cell g">lint</span><span class="cell g">secrets</span><span class="cell r">pytest</span><span class="cell n">semgrep</span></div>
+            <div class="list">
+              <div class="li"><div class="row"><span class="sdot r"></span><b class="grow">test_import_rows_rejects_guest</b><span class="path">test_importer.py:22</span><span class="btn" style="height:24px">Open in review</span></div><span class="path">AssertionError: PermissionError not raised</span></div>
+              <div class="li"><div class="row"><span class="sdot r"></span><b class="grow">test_import_rows_rollback</b><span class="path">test_importer.py:41</span><span class="btn" style="height:24px">Open in review</span></div><span class="path">399 != 0</span></div>
+            </div>
+            <div class="log"><span class="sh">▸ lint  ·  12s  ·  passed</span><span class="sh">▸ secrets  ·  2s  ·  passed</span><span class="sh">▾ pytest  ·  1m 31s  ·  2 failed</span><span class="dim">  $ bench --site test.localhost run-tests --app entries_crm</span>
+<span class="ok">  test_import_rows_creates_log ... ok</span>
+<span class="err">  FAILED test_import_rows_rejects_guest - PermissionError not raised</span>
+<span class="err">  FAILED test_import_rows_rollback - 399 != 0</span>
+<span class="sh">▸ semgrep  ·  skipped (not installed)</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="rec"><span class="eyebrow">Recommended</span><p><b>A, with C's parsed failures above the log.</b> The graph shows order and missing tools, and the parsed list takes you to the failing test. B's matrix fits later as a History view.</p></div>
+  </section>
+
+  <!-- =================================================== S7 HISTORY -->
+  <section class="screen" id="s7" aria-labelledby="s7h">
+    <div class="sechead">
+      <div class="eyebrow">Section 7</div>
+      <h2 id="s7h">History</h2>
+    </div>
+    <div class="today">
+      <h3>Today</h3>
+      <ol>
+        <li>A plain table of runs with no search or filters</li>
+        <li>The audit trail expands inline and pushes the table down</li>
+        <li>No sense of trend: how many reviews, how many notes posted, how many got resolved</li>
+      </ol>
+    </div>
+
+    <!-- 7A -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">A</span><h2>Filters + audit drawer</h2></div>
+        <p>A filter bar (project, status, date, text) above the runs table. Selecting a run opens its audit timeline in a right drawer: every tool call, guardrail decision and post.</p>
+        <div class="stat"><div><b>4</b>filters</div><div><b>Drawer</b>keeps table in place</div></div>
+        <div class="pc">
+          <div class="p">Answers "what happened on !41 last Tuesday?" fast</div>
+          <div class="p">Audit detail without losing the list</div>
+          <div class="c">No overview numbers</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span><code>list_runs</code> filter params</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="grid-template-columns:150px minmax(0,1fr) 270px;min-height:380px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue</a><a>CI runs</a><a class="on">History</a><a>Settings</a></nav>
+          <div class="main">
+            <div class="row" style="flex-wrap:wrap;gap:6px"><span class="in" style="width:170px">⌕ Search runs</span><span class="chip">entries_crm ▾</span><span class="chip">Any status ▾</span><span class="chip">Last 7 days ▾</span></div>
+            <table class="tbl">
+              <tr><th>Run</th><th>MR</th><th>Status</th><th>Time</th></tr>
+              <tr class="sel"><td class="mono muted">#212</td><td class="t2">!41 Import review<small>Today 10:14</small></td><td><span class="pill o">Awaiting</span></td><td class="mono" style="font-size:11.5px">31s</td></tr>
+              <tr><td class="mono muted">#209</td><td class="t2">!38 Duplicate contact merge<small>Yesterday 17:02</small></td><td><span class="pill g">Posted 2</span></td><td class="mono" style="font-size:11.5px">44s</td></tr>
+              <tr><td class="mono muted">#205</td><td class="t2">!43 Acme workflow<small>Yesterday 11:40</small></td><td><span class="pill r">Timed out</span></td><td class="mono" style="font-size:11.5px">10m</td></tr>
+              <tr><td class="mono muted">#201</td><td class="t2">!44 AI summary panel<small>Mon 09:12</small></td><td><span class="pill n">Skipped: draft</span></td><td class="mono" style="font-size:11.5px">0s</td></tr>
+            </table>
+          </div>
+          <aside class="drawer2">
+            <div class="row"><b class="grow">Run #212</b><span class="muted">✕</span></div>
+            <div class="ev"><span>10:14</span><span class="sdot g"></span><span>Worktree ready at a1f9c2e</span></div>
+            <div class="ev"><span>10:14</span><span class="sdot r"></span><span>CI pytest failed (2)</span></div>
+            <div class="ev"><span>10:15</span><span class="sdot b"></span><span>Claude: 9 turns, 6 tool calls</span></div>
+            <div class="ev"><span>10:15</span><span class="sdot o"></span><span>Guardrail dropped SEC-001: duplicate of open thread</span></div>
+            <div class="ev"><span>10:15</span><span class="sdot o"></span><span>Guardrail dropped 1: confidence 0.48 &lt; 0.6</span></div>
+            <div class="ev"><span>10:15</span><span class="sdot"></span><span>4 findings waiting for approval</span></div>
+          </aside>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 7B -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">B</span><h2>Activity feed</h2></div>
+        <p>A chronological feed grouped by day, in plain sentences: "Posted 3 notes to !41", "Guardrails dropped 2 duplicates", "Review of !43 timed out". Click an entry to open it.</p>
+        <div class="stat"><div><b>Readable</b>as a log of the day</div></div>
+        <div class="pc">
+          <div class="p">Easy to scan what Warden did while you were away</div>
+          <div class="p">Mixes reviews, posts and errors in one stream</div>
+          <div class="c">Harder to compare runs side by side</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none (built from the audit log)</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:380px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue</a><a>CI runs</a><a class="on">History</a><a>Settings</a></nav>
+          <div class="main" style="max-width:640px">
+            <div class="row"><h3 class="grow">Activity</h3><span class="chip">All projects ▾</span></div>
+            <div class="day">Today</div>
+            <div class="ev"><span>10:15</span><span class="sdot o"></span><span><b>!41</b> reviewed: 4 findings wait for approval, 2 dropped by guardrails</span></div>
+            <div class="ev"><span>10:14</span><span class="sdot r"></span><span><b>!41</b> local CI: pytest failed (2 tests)</span></div>
+            <div class="ev"><span>09:30</span><span class="sdot g"></span><span><b>!12</b> entries_platform reviewed: no findings, approved</span></div>
+            <div class="day">Yesterday</div>
+            <div class="ev"><span>17:03</span><span class="sdot g"></span><span>Posted 2 notes to <b>!38</b> on gitlab.com</span></div>
+            <div class="ev"><span>16:40</span><span class="sdot g"></span><span>1 thread on <b>!35</b> auto-resolved after the fix was pushed</span></div>
+            <div class="ev"><span>11:50</span><span class="sdot r"></span><span>Review of <b>!43</b> timed out after 10 minutes. <a href="#s7" style="color:var(--brand)">Retry</a></span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 7C -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">C</span><h2>Stats on top</h2></div>
+        <p>Four numbers for the week (reviews, notes posted, resolved rate, median time), a reviews-per-day chart, then the runs table. Shows whether Warden is earning its keep.</p>
+        <div class="stat"><div><b>4</b>KPIs</div><div><b>14</b>day trend</div></div>
+        <div class="pc">
+          <div class="p">Resolved rate tells you if the notes are useful</div>
+          <div class="p">Useful for reporting to the team</div>
+          <div class="c">Numbers mean little in the first week</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span><code>history_stats(days)</code> aggregate query</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:400px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue</a><a>CI runs</a><a class="on">History</a><a>Settings</a></nav>
+          <div class="main">
+            <div class="kpi">
+              <div><b>23</b>reviews this week</div>
+              <div><b>41</b>notes posted</div>
+              <div><b>68%</b>threads resolved</div>
+              <div><b>38s</b>median review</div>
+            </div>
+            <div class="bars" aria-label="Reviews per day, last 14 days">
+              <i class="p" style="height:20%"></i><i class="p" style="height:35%"></i><i class="p" style="height:15%"></i><i class="p" style="height:0"></i><i class="p" style="height:5%"></i><i class="p" style="height:40%"></i><i class="p" style="height:55%"></i><i style="height:45%"></i><i style="height:60%"></i><i style="height:30%"></i><i style="height:0"></i><i style="height:10%"></i><i style="height:70%"></i><i style="height:85%"></i>
+            </div>
+            <table class="tbl">
+              <tr><th>Run</th><th>MR</th><th>Posted</th><th>Resolved</th></tr>
+              <tr><td class="mono muted">#212</td><td>!41 Import review</td><td class="mono">0</td><td class="mono muted">–</td></tr>
+              <tr><td class="mono muted">#209</td><td>!38 Duplicate contact merge</td><td class="mono">2</td><td class="mono">2</td></tr>
+            </table>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="rec"><span class="eyebrow">Recommended</span><p><b>A, with C's four numbers as a strip above the filters.</b> Filters and the audit drawer cover the daily need. The KPI strip answers "is it useful?" without a separate page.</p></div>
+  </section>
+
+  <!-- =================================================== S8 GUARDRAILS -->
+  <section class="screen" id="s8" aria-labelledby="s8h">
+    <div class="sechead">
+      <div class="eyebrow">Section 8</div>
+      <h2 id="s8h">Guardrails</h2>
+    </div>
+    <div class="today">
+      <h3>Today</h3>
+      <ol>
+        <li>One long form with four boxes. Locked safety switches sit between the ones you can change</li>
+        <li>App-wide limits (max turns, reviews per hour, timeout) appear on each project's page marked "Global setting"</li>
+        <li>The rules list shows an id and a switch, but not what the rule catches or how often it fires</li>
+        <li>No way to see what a change does before saving it</li>
+      </ol>
+    </div>
+
+    <!-- 8A -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">A</span><h2>Tabs + "always on" card</h2></div>
+        <p>Split into tabs: Posting, Filters, Rules. Safety items that can't be changed move to one read-only "Always on" card. App-wide limits move to Settings.</p>
+        <div class="stat"><div><b>3</b>tabs</div><div><b>0</b>locked switches mixed in</div></div>
+        <div class="pc">
+          <div class="p">Each tab is short and has one purpose</div>
+          <div class="p">Clear split between "yours to tune" and "always on"</div>
+          <div class="c">Settings spread over tabs, less at a glance</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:400px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue</a><a>CI runs</a><a>History</a><a class="on">Settings</a></nav>
+          <div class="main" style="padding:0;gap:0">
+            <div class="row" style="padding:12px 18px 0"><h3 class="grow">Guardrails</h3><span class="chip">entries_crm ▾</span></div>
+            <div class="tabsbar" style="padding:0 18px;margin-top:8px"><a>Posting</a><a class="on">Filters</a><a>Rules <small>5</small></a></div>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:14px;padding:16px 18px">
+              <div class="pane">
+                <div class="kv"><span>Minimum confidence<small>Findings below this are dropped</small></span><span class="row"><span class="slider"><i style="width:60%"></i><b style="left:60%"></b></span><span class="mono">0.60</span></span></div>
+                <div class="kv"><span>Lowest severity posted</span><span class="chip">minor ▾</span></div>
+                <div class="kv"><span>Max notes per MR</span><span class="chip">8</span></div>
+                <div class="kv"><span>Post nits</span><span class="tgl"></span></div>
+                <div class="kv"><span>Summary note</span><span class="tgl on"></span></div>
+              </div>
+              <div class="pane" style="background:var(--green-soft);border-color:transparent">
+                <b style="font-size:12.5px">Always on</b>
+                <div class="kv"><span>Anchor on a changed line</span><span class="lock">locked</span></div>
+                <div class="kv"><span>Drop duplicates</span><span class="lock">locked</span></div>
+                <div class="kv"><span>Redact secrets</span><span class="lock">locked</span></div>
+                <div class="kv"><span>No shell for Claude</span><span class="lock">locked</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 8B -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">B</span><h2>Rules catalogue</h2></div>
+        <p>Rules as cards: what it catches, how it checks (regex, Claude, semgrep), severity, hits in the last 30 days and how many of its notes were dismissed. Filter by source or by project.</p>
+        <div class="stat"><div><b>30d</b>hits per rule</div><div><b>Dismiss</b>rate shown</div></div>
+        <div class="pc">
+          <div class="p">Shows which rules are noisy before you switch them off</div>
+          <div class="p">Easy place to add custom rules later</div>
+          <div class="c">Covers rules only, still needs a page for filters</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span><code>rule_stats(project, days)</code></div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:400px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue</a><a>CI runs</a><a>History</a><a class="on">Settings</a></nav>
+          <div class="main">
+            <div class="row"><h3 class="grow">Rules · entries_crm</h3><span class="chip">All sources ▾</span><span class="btn">+ Custom rule</span></div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+              <div class="rulecard"><div class="row"><b class="mono">FR-001</b><span class="sev bl">blocker</span><span class="grow"></span><span class="tgl on"></span></div><span>Whitelisted method with no permission check</span><div class="row"><span class="pill b">Claude</span><span class="grow path">14 hits · 1 dismissed</span><span class="spark"><i style="height:30%"></i><i style="height:60%"></i><i style="height:20%"></i><i style="height:80%"></i><i style="height:50%"></i></span></div></div>
+              <div class="rulecard"><div class="row"><b class="mono">FR-002</b><span class="sev bl">blocker</span><span class="grow"></span><span class="tgl on"></span></div><span>SQL built with f-strings or <code class="mono">%</code> formatting</span><div class="row"><span class="pill n">regex</span><span class="grow path">9 hits · 0 dismissed</span><span class="spark"><i style="height:40%"></i><i style="height:20%"></i><i style="height:50%"></i><i style="height:30%"></i><i style="height:60%"></i></span></div></div>
+              <div class="rulecard"><div class="row"><b class="mono">FR-007</b><span class="sev mj">major</span><span class="grow"></span><span class="tgl on"></span></div><span><code class="mono">frappe.db.commit()</code> in request code</span><div class="row"><span class="pill n">regex</span><span class="grow path" style="color:var(--orange)">11 hits · 6 dismissed</span><span class="spark"><i style="height:70%"></i><i style="height:90%"></i><i style="height:60%"></i><i style="height:80%"></i><i style="height:40%"></i></span></div></div>
+              <div class="rulecard"><div class="row"><b class="mono">SEC-001</b><span class="sev bl">blocker</span><span class="grow"></span><span class="tgl on"></span></div><span>Hard-coded secrets and tokens</span><div class="row"><span class="pill n">scanner</span><span class="grow path">2 hits · 0 dismissed</span><span class="spark"><i style="height:10%"></i><i style="height:0"></i><i style="height:30%"></i><i style="height:0"></i><i style="height:10%"></i></span></div></div>
+            </div>
+            <div class="row" style="font-size:12px"><span class="sdot o"></span><span class="grow">FR-007 notes are dismissed 55% of the time. Consider lowering it to minor or limiting it to <code class="mono">api/</code>.</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 8C -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">C</span><h2>Live preview</h2></div>
+        <p>Controls on the left. On the right, findings from the last few reviews, marked "would post" or "would drop" under the current settings, updating as you move a slider.</p>
+        <div class="stat"><div><b>Live</b>effect of each change</div></div>
+        <div class="pc">
+          <div class="p">Tune confidence with real data, not guesses</div>
+          <div class="p">Builds trust before switching to Assist or Auto</div>
+          <div class="c">Needs some review history to be useful</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span><code>simulate_guardrails(project, overrides)</code> over recent findings</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:400px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue</a><a>CI runs</a><a>History</a><a class="on">Settings</a></nav>
+          <div class="main" style="grid-template-columns:240px minmax(0,1fr);display:grid;gap:14px">
+            <div class="pane">
+              <b style="font-size:12.5px">entries_crm</b>
+              <div class="kv"><span>Confidence</span><span class="row"><span class="slider" style="width:80px"><i style="width:75%"></i><b style="left:75%"></b></span><span class="mono">0.75</span></span></div>
+              <div class="kv"><span>Severity floor</span><span class="chip">major ▾</span></div>
+              <div class="kv"><span>Max notes</span><span class="chip">5</span></div>
+              <div class="kv"><span>Nits</span><span class="tgl"></span></div>
+              <div class="row"><span class="grow"></span><span class="btn ghost">Reset</span><span class="btn pri">Save</span></div>
+            </div>
+            <div style="display:grid;gap:8px;align-content:start">
+              <div class="row"><b class="grow">Last 5 reviews with these settings</b><span class="pill g">9 post</span><span class="pill n">6 drop</span></div>
+              <div class="list">
+                <div class="li"><div class="row"><span class="sev bl">blocker</span><span class="grow">SQL built with an f-string · !41</span><span class="mono path">0.98</span><span class="pill g">post</span></div></div>
+                <div class="li"><div class="row"><span class="sev mj">major</span><span class="grow">Commit inside loop · !41</span><span class="mono path">0.90</span><span class="pill g">post</span></div></div>
+                <div class="li" style="opacity:.6"><div class="row"><span class="sev mn">minor</span><span class="grow">Unbounded UPDATE loop · !41</span><span class="mono path">0.71</span><span class="pill n">drop: severity</span></div></div>
+                <div class="li" style="opacity:.6"><div class="row"><span class="sev mj">major</span><span class="grow">Possible race in stage update · !43</span><span class="mono path">0.62</span><span class="pill n">drop: confidence</span></div></div>
+                <div class="li"><div class="row"><span class="sev bl">blocker</span><span class="grow">Skips permission check · !41</span><span class="mono path">0.92</span><span class="pill g">post</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="rec"><span class="eyebrow">Recommended</span><p><b>A as the structure, B as the Rules tab, C's preview beside the Filters tab.</b> All three fit together: tabs keep it short, the catalogue shows noisy rules, and the preview shows what a slider change does.</p></div>
+  </section>
+
+  <!-- =================================================== S9 CONNECTIONS -->
+  <section class="screen" id="s9" aria-labelledby="s9h">
+    <div class="sechead">
+      <div class="eyebrow">Section 9</div>
+      <h2 id="s9h">Connections &amp; settings</h2>
+    </div>
+    <div class="today">
+      <h3>Today</h3>
+      <ol>
+        <li>Connections and Projects are separate pages, and app settings have no page of their own</li>
+        <li>The Claude engine box shows six status rows; you have to read them all to know if it works</li>
+        <li>Missing tools (semgrep, gitleaks) show as "not installed" with no next step</li>
+        <li>The token form sits inline in the forge box, shown even when already connected</li>
+      </ol>
+    </div>
+
+    <!-- 9A -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">A</span><h2>Health checklist</h2></div>
+        <p>One "Setup" page as a checklist: Claude CLI, subscription login, GitLab, keychain, CI tools. Green rows collapse to one line; anything missing shows the exact fix with a copy button.</p>
+        <div class="stat"><div><b>1</b>glance: all green or not</div><div><b>Fix</b>shown inline</div></div>
+        <div class="pc">
+          <div class="p">Doubles as first-run onboarding</div>
+          <div class="p">Tells you what to do, not just what is wrong</div>
+          <div class="c">Less room for detailed options per item</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span><code>health_check()</code> combining existing status calls</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="min-height:400px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue</a><a>CI runs</a><a>History</a><a class="on">Settings</a></nav>
+          <div class="main" style="max-width:660px">
+            <div class="row"><h3 class="grow">Setup</h3><span class="pill o">5 of 7 ready</span></div>
+            <div class="list">
+              <div class="chk"><span class="ic g">✓</span><span><b>Claude Code CLI</b> <span class="path">2.1.321 · /opt/homebrew/bin/claude</span></span><span class="muted">›</span></div>
+              <div class="chk"><span class="ic g">✓</span><span><b>Logged in with your subscription</b> <span class="path">no API key in environment</span></span><span class="muted">›</span></div>
+              <div class="chk"><span class="ic g">✓</span><span><b>gitlab.com</b> <span class="path">@vinay · token in Keychain</span></span><span class="btn ghost" style="height:24px">Replace token</span></div>
+              <div class="chk"><span class="ic g">✓</span><span><b>3 projects watched</b> <span class="path">entries_crm, entries_platform, entries_lnd</span></span><span class="muted">›</span></div>
+              <div class="chk"><span class="ic g">✓</span><span><b>Warden MCP server</b> <span class="path">127.0.0.1:7811</span></span><span class="muted">›</span></div>
+              <div class="chk" style="background:var(--orange-soft)"><span class="ic o">!</span><span style="display:grid;gap:4px"><b>semgrep not installed</b><span class="path">Scan jobs are skipped. Install with Homebrew:</span><span class="row" style="gap:6px"><code class="mono" style="background:var(--surface);padding:2px 8px;border-radius:4px;border:1px solid var(--line)">brew install semgrep</code><span class="btn" style="height:24px">Copy</span></span></span><span class="btn" style="height:24px">Check again</span></div>
+              <div class="chk" style="background:var(--orange-soft)"><span class="ic o">!</span><span><b>gitleaks not installed</b> <span class="path">built-in secret scanner is used instead</span></span><span class="btn" style="height:24px">Copy fix</span></div>
+            </div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 9B -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">B</span><h2>Mac settings window</h2></div>
+        <p>A separate window opened with ⌘, and a toolbar of panes: General, Accounts, Claude, Projects, Tools, Advanced. The main window keeps only work screens. The mockup shows the Accounts pane.</p>
+        <div class="stat"><div><b>⌘,</b>like every Mac app</div><div><b>6</b>panes</div></div>
+        <div class="pc">
+          <div class="p">Settings out of the way of daily work</div>
+          <div class="p">Room for each area to have proper options</div>
+          <div class="c">A second window to build and manage in Tauri</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>second Tauri window + menu item</div>
+      </div>
+      <div class="scroller"><div class="win" style="min-width:680px;max-width:720px">
+        <div class="tb" style="justify-content:center"><div class="dots" style="position:absolute;margin-left:-300px"><i></i><i></i><i></i></div>Accounts</div>
+        <div class="stb"><a><i>⚙</i>General</a><a class="on"><i>@</i>Accounts</a><a><i>C</i>Claude</a><a><i>▤</i>Projects</a><a><i>⚒</i>Tools</a><a><i>…</i>Advanced</a></div>
+        <div class="main" style="min-height:320px;padding:18px 24px">
+          <div class="list">
+            <div class="chk"><span class="avatar s" style="background:#e24329">GL</span><span><b>gitlab.com</b> <span class="path">@vinay · api, read_repository</span></span><span class="row" style="gap:6px"><span class="pill g">Connected</span><span class="btn ghost" style="height:24px">Remove</span></span></div>
+            <div class="chk"><span class="avatar s" style="background:#24292f">GH</span><span><b>github.com</b> <span class="path">not connected</span></span><span class="btn" style="height:24px">Connect…</span></div>
+          </div>
+          <div class="pane">
+            <b style="font-size:12.5px">Bot identity for posting</b>
+            <div class="kv"><span>Post as<small>Notes appear under this user on GitLab</small></span><span class="chip">@vinay ▾</span></div>
+            <div class="kv"><span>Note footer</span><span class="chip">Warden review of {sha}</span></div>
+          </div>
+          <span class="path">Tokens are stored in the macOS Keychain and never shown again after saving.</span>
+        </div>
+      </div></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- 9C -->
+    <div class="variant">
+      <div class="notes">
+        <div class="vhead"><span class="vtag">C</span><h2>Projects as the hub</h2></div>
+        <p>A projects list on the left. Selecting a project shows everything about it on one page: forge connection, local clone, branches, posting mode, guardrail summary. Engine and forge status sit in a top card.</p>
+        <div class="stat"><div><b>1</b>page per project</div></div>
+        <div class="pc">
+          <div class="p">All of a project's setup in one place</div>
+          <div class="p">Natural home for the new add-project flow</div>
+          <div class="c">App-wide items (engine, tools) feel tacked on</div>
+        </div>
+        <div class="needs"><span class="lbl">Backend work</span>none</div>
+      </div>
+      <div class="scroller"><div class="win">
+        <div class="tb"><div class="dots"><i></i><i></i><i></i></div>Warden<span style="flex:1"></span><span class="okdot"></span> gitlab.com · @vinay</div>
+        <div class="body" style="grid-template-columns:150px 210px minmax(0,1fr);min-height:400px">
+          <nav class="side"><a>Inbox<span>6</span></a><a>Approval queue</a><a>CI runs</a><a>History</a><a class="on">Settings</a></nav>
+          <div style="border-right:1px solid var(--line);background:var(--surface)">
+            <div class="li" style="background:var(--surface-2)"><div class="row"><span class="okdot"></span><span class="path grow">Claude · gitlab.com</span><span class="pill o">2 tools</span></div></div>
+            <div class="li on"><b>entries_crm</b><span class="path">Draft · develop, main</span></div>
+            <div class="li"><b>entries_platform</b><span class="path">Assist · main</span></div>
+            <div class="li"><b>entries_lnd</b><span class="path">Draft · develop</span></div>
+            <div class="li"><span class="btn" style="justify-self:start">+ Add projects</span></div>
+          </div>
+          <div class="main">
+            <div class="row"><h3 class="grow">entries_crm</h3><span class="tgl on"></span><span class="path">watching</span></div>
+            <div class="pane">
+              <div class="kv"><span>GitLab project</span><span class="mono" style="font-size:12px">entries/entries_crm</span></div>
+              <div class="kv"><span>Code on this Mac</span><span class="row" style="gap:6px"><span class="path">~/…/crmv15/apps/entries_crm</span><span class="btn ghost" style="height:24px">Change</span></span></div>
+              <div class="kv"><span>Reviews MRs into</span><span class="row" style="gap:4px"><span class="chip">develop</span><span class="chip">main</span><span class="chip add">+</span></span></div>
+              <div class="kv"><span>Posting mode</span><span class="row" style="gap:4px"><span class="chip" style="background:var(--brand-soft);color:var(--brand);border-color:var(--brand)">Draft</span><span class="chip">Assist</span><span class="chip">Auto</span></span></div>
+              <div class="kv"><span>Poll every</span><span class="chip">5 min ▾</span></div>
+              <div class="kv"><span>Guardrails</span><span class="row" style="gap:6px"><span class="path">conf 0.60 · minor+ · 5 rules</span><span class="btn ghost" style="height:24px">Edit →</span></span></div>
+            </div>
+            <div class="row"><span class="btn ghost" style="color:var(--red)">Stop watching</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="rec"><span class="eyebrow">Recommended</span><p><b>B, with A's checklist as the General pane.</b> A real settings window keeps the main window for work. The checklist doubles as first-run setup. C's per-project page becomes the Projects pane.</p></div>
+  </section>
+
+  <section class="shared" id="picks">
+    <h3>Your picks</h3>
+    <p>Reply with one letter per section, adding a second letter for a mix. My recommendations, in that format:</p>
+    <p class="mono" style="font-size:13px;background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px">2A+C 3C+A 4B+A 5A+C 6A+C 7A+C 8A+B+C 9B+A</p>
+    <p class="muted">Changing one or two is fine, for example "same, but 5B". I build the add-project flow first, then the shell, then each screen in order.</p>
+  </section>
+
+</div>

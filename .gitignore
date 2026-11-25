@@ -1,0 +1,9 @@
+target
+node_modules
+.build-copies
+ui/dist
+*.log
+.DS_Store
+
+# Tauri generated
+src-tauri/gen/schemas

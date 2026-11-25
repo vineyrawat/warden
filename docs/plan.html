@@ -1,0 +1,667 @@
+<title>Warden Review Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: single reading column (plan) with full-width framed app mockups that scroll sideways on phones */
+:root {
+  --bg:#f5f6f8; --surface:#ffffff; --surface-2:#eef1f5; --fg:#151a23; --muted:#5b6474; --line:#dde2ea;
+  --accent:#2f5bd3; --accent-soft:#e7edfc;
+  --red:#c2362c; --red-soft:#fbe8e6; --orange:#b8640f; --orange-soft:#fbefe1; --yellow:#8f7300; --yellow-soft:#f7f0d2;
+  --green:#1d8048; --green-soft:#e2f3e9; --code-bg:#f2f4f7; --add:#e4f5ea; --del:#fcebeb; --chrome:#e7eaef;
+  --sans:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg:#0f1218; --surface:#161a22; --surface-2:#1d222c; --fg:#e5e8ee; --muted:#939cab; --line:#2a303b;
+  --accent:#86a2f2; --accent-soft:#1c2540;
+  --red:#f07c72; --red-soft:#3a1d1b; --orange:#efa35b; --orange-soft:#37281a; --yellow:#dcc255; --yellow-soft:#322f1a;
+  --green:#62cf90; --green-soft:#15301f; --code-bg:#12161d; --add:#143020; --del:#3a1b1d; --chrome:#20252f;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg:#0f1218; --surface:#161a22; --surface-2:#1d222c; --fg:#e5e8ee; --muted:#939cab; --line:#2a303b;
+  --accent:#86a2f2; --accent-soft:#1c2540;
+  --red:#f07c72; --red-soft:#3a1d1b; --orange:#efa35b; --orange-soft:#37281a; --yellow:#dcc255; --yellow-soft:#322f1a;
+  --green:#62cf90; --green-soft:#15301f; --code-bg:#12161d; --add:#143020; --del:#3a1b1d; --chrome:#20252f;
+  color-scheme: dark; }
+
+body { background:var(--bg); color:var(--fg); font-family:var(--sans); font-size:15px; line-height:1.6; }
+.wrap { max-width:1080px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px)); padding-block:40px 80px; }
+.prose { max-width:72ch; }
+h1,h2,h3 { line-height:1.2; text-wrap:balance; margin:0; }
+h1 { font-size:clamp(28px,4vw,40px); font-weight:700; letter-spacing:-0.01em; }
+h2 { font-size:24px; font-weight:600; margin-top:56px; padding-top:20px; border-top:1px solid var(--line); }
+h3 { font-size:17px; font-weight:600; margin-top:28px; }
+p { margin:10px 0; }
+a { color:var(--accent); }
+code, pre { font-family:var(--mono); font-size:13px; }
+code { background:var(--code-bg); padding:1px 5px; border-radius:4px; }
+pre { background:var(--code-bg); border:1px solid var(--line); border-radius:8px; padding:14px 16px; overflow-x:auto; line-height:1.5; margin:12px 0; }
+pre code { background:none; padding:0; }
+.eyebrow { font-family:var(--mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+.lede { font-size:17px; color:var(--fg); max-width:68ch; margin-top:14px; }
+.muted { color:var(--muted); }
+.facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-top:28px; }
+.facts div { background:var(--surface); padding:14px 16px; min-width:0; }
+.facts b { display:block; font-size:12px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.06em; color:var(--muted); font-weight:500; }
+.facts span { font-weight:600; }
+.callout { border:1px solid var(--line); border-left:3px solid var(--accent); background:var(--surface); border-radius:6px; padding:12px 16px; margin:18px 0; max-width:80ch; }
+.tbl { overflow-x:auto; margin:14px 0; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+table { border-collapse:collapse; width:100%; font-size:14px; }
+th, td { text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+th { font-size:12px; font-family:var(--mono); text-transform:uppercase; letter-spacing:.05em; color:var(--muted); font-weight:500; background:var(--surface-2); }
+tr:last-child td { border-bottom:0; }
+td code { white-space:nowrap; }
+ol.steps { padding-left:22px; max-width:78ch; }
+ol.steps li { margin:6px 0; }
+.grid2 { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; }
+.grid2 > * { min-width:0; }
+.card { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:14px 16px; }
+.card h3 { margin-top:0; font-size:15px; }
+.card ul { margin:8px 0 0; padding-left:18px; }
+.card li { margin:3px 0; }
+pre.mermaid { background:var(--surface); text-align:center; }
+
+/* ---------- mockups ---------- */
+.shot { margin:22px 0 36px; }
+.shot figcaption { font-size:14px; color:var(--muted); margin-top:10px; max-width:80ch; }
+.shot figcaption b { color:var(--fg); }
+.scroller { overflow-x:auto; border-radius:10px; }
+.win { min-width:960px; background:var(--surface); border:1px solid var(--line); border-radius:10px; overflow:hidden; font-size:13px; line-height:1.45; box-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(20,30,50,.06); }
+.titlebar { display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--chrome); border-bottom:1px solid var(--line); }
+.dots { display:flex; gap:6px; } .dots i { width:11px; height:11px; border-radius:50%; background:var(--line); display:block; }
+.titlebar .t { font-weight:600; font-size:12px; }
+.titlebar .st { margin-left:auto; display:flex; gap:14px; font-size:12px; color:var(--muted); }
+.ok::before, .warnd::before { content:""; display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:6px; vertical-align:1px; }
+.ok::before { background:var(--green); } .warnd::before { background:var(--orange); }
+.app { display:grid; grid-template-columns:176px 1fr; min-height:420px; }
+.side { border-right:1px solid var(--line); background:var(--surface-2); padding:12px 8px; display:flex; flex-direction:column; gap:2px; }
+.side a { color:var(--fg); text-decoration:none; padding:6px 10px; border-radius:6px; display:flex; justify-content:space-between; }
+.side a.on { background:var(--surface); font-weight:600; box-shadow:inset 0 0 0 1px var(--line); }
+.side a small { color:var(--muted); font-family:var(--mono); }
+.side .sec { font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); padding:12px 10px 4px; }
+.main { padding:14px 16px; min-width:0; }
+.toolbar { display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+.chip { border:1px solid var(--line); border-radius:999px; padding:3px 10px; font-size:12px; background:var(--surface); }
+.chip.on { background:var(--accent-soft); border-color:var(--accent); color:var(--accent); font-weight:600; }
+.btn { border:1px solid var(--line); background:var(--surface); border-radius:6px; padding:5px 11px; font-size:12px; font-weight:500; font-family:var(--sans); color:var(--fg); }
+.btn.pri { background:var(--accent); border-color:var(--accent); color:var(--surface); }
+.btn.danger { color:var(--red); }
+.spacer { margin-left:auto; }
+.pill { display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+.p-red { background:var(--red-soft); color:var(--red); } .p-orange { background:var(--orange-soft); color:var(--orange); }
+.p-yellow { background:var(--yellow-soft); color:var(--yellow); } .p-green { background:var(--green-soft); color:var(--green); }
+.p-blue { background:var(--accent-soft); color:var(--accent); } .p-grey { background:var(--surface-2); color:var(--muted); }
+.mt { width:100%; border-collapse:collapse; font-size:13px; }
+.mt th { background:none; border-bottom:1px solid var(--line); padding:6px 8px; font-size:11px; }
+.mt td { padding:9px 8px; border-bottom:1px solid var(--line); vertical-align:middle; }
+.mt .mr { font-family:var(--mono); color:var(--muted); }
+.mt .ttl { font-weight:600; } .mt .sub { color:var(--muted); font-size:12px; }
+.add { color:var(--green); font-family:var(--mono); } .del { color:var(--red); font-family:var(--mono); }
+.mono { font-family:var(--mono); }
+.bar { height:4px; background:var(--surface-2); border-radius:3px; overflow:hidden; width:90px; margin-top:4px; }
+.bar i { display:block; height:100%; background:var(--accent); }
+
+.rv { display:grid; grid-template-columns:200px 1fr 300px; min-height:520px; }
+.tree { border-right:1px solid var(--line); padding:10px 8px; background:var(--surface-2); font-family:var(--mono); font-size:12px; }
+.tree div { padding:4px 8px; border-radius:5px; display:flex; justify-content:space-between; gap:6px; }
+.tree div.on { background:var(--surface); box-shadow:inset 0 0 0 1px var(--line); }
+.tree .dir { color:var(--muted); }
+.diff { min-width:0; border-right:1px solid var(--line); }
+.diffhead { padding:8px 12px; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:12px; display:flex; gap:10px; background:var(--surface-2); }
+.dl { display:grid; grid-template-columns:40px 40px 1fr; font-family:var(--mono); font-size:12px; line-height:1.7; }
+.dl span { padding:0 8px; white-space:pre; overflow:hidden; text-overflow:ellipsis; }
+.dl .n { color:var(--muted); text-align:right; user-select:none; }
+.dl.a span { background:var(--add); } .dl.d span { background:var(--del); }
+.dl.h span { background:var(--accent-soft); color:var(--muted); }
+.inline { margin:6px 12px 8px 92px; border:1px solid var(--line); border-left:3px solid var(--red); border-radius:6px; background:var(--surface); padding:10px 12px; font-size:12.5px; }
+.inline.o { border-left-color:var(--orange); }
+.inline .hd { display:flex; gap:8px; align-items:center; margin-bottom:4px; flex-wrap:wrap; }
+.inline .rule { font-family:var(--mono); font-size:11px; color:var(--muted); }
+.inline pre { margin:6px 0 4px; padding:8px 10px; font-size:11.5px; }
+.inline .acts { display:flex; gap:6px; margin-top:6px; }
+.fpanel { padding:10px; display:flex; flex-direction:column; gap:8px; background:var(--surface-2); }
+.fpanel .hdr { display:flex; justify-content:space-between; align-items:center; font-weight:600; }
+.fi { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px 10px; display:grid; grid-template-columns:16px 1fr; gap:8px; }
+.fi .cb { width:14px; height:14px; border:1.5px solid var(--muted); border-radius:3px; margin-top:2px; }
+.fi .cb.x { background:var(--accent); border-color:var(--accent); }
+.fi .meta { font-size:11px; color:var(--muted); font-family:var(--mono); }
+.fi.dim { opacity:.55; }
+.foot { display:flex; align-items:center; gap:10px; padding:10px 14px; border-top:1px solid var(--line); background:var(--surface); flex-wrap:wrap; }
+.seg { display:inline-flex; border:1px solid var(--line); border-radius:7px; overflow:hidden; }
+.seg span { padding:5px 12px; font-size:12px; border-right:1px solid var(--line); }
+.seg span:last-child { border-right:0; }
+.seg span.on { background:var(--accent); color:var(--surface); font-weight:600; }
+
+.ci { display:grid; grid-template-columns:260px 1fr; min-height:440px; }
+.jobs { border-right:1px solid var(--line); padding:10px; display:flex; flex-direction:column; gap:6px; background:var(--surface-2); }
+.job { background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:8px 10px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.job.on { box-shadow:inset 0 0 0 1.5px var(--accent); }
+.job b { font-family:var(--mono); font-size:12px; font-weight:600; }
+.job small { color:var(--muted); font-family:var(--mono); font-size:11px; }
+.log { background:var(--code-bg); font-family:var(--mono); font-size:12px; line-height:1.6; padding:12px 14px; border-bottom:1px solid var(--line); white-space:pre; overflow:hidden; }
+.log .e { color:var(--red); } .log .g { color:var(--green); } .log .m { color:var(--muted); }
+.explain { margin:12px 14px; border:1px solid var(--line); border-radius:8px; padding:10px 12px; background:var(--surface); }
+.explain .hd { font-weight:600; display:flex; gap:8px; align-items:center; margin-bottom:4px; }
+
+.form { padding:16px 18px; display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+.fs { border:1px solid var(--line); border-radius:8px; padding:12px 14px; background:var(--surface); min-width:0; }
+.fs h4 { margin:0 0 8px; font-size:13px; }
+.row { display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px dashed var(--line); gap:10px; }
+.row:last-child { border-bottom:0; }
+.row .k { color:var(--muted); font-size:12px; }
+.inp { border:1px solid var(--line); border-radius:5px; padding:4px 8px; font-family:var(--mono); font-size:12px; background:var(--surface-2); min-width:150px; }
+.tog { width:30px; height:17px; border-radius:999px; background:var(--line); position:relative; flex:none; }
+.tog::after { content:""; position:absolute; top:2px; left:2px; width:13px; height:13px; border-radius:50%; background:var(--surface); }
+.tog.on { background:var(--accent); } .tog.on::after { left:15px; }
+.slider { height:4px; width:130px; background:var(--line); border-radius:3px; position:relative; }
+.slider i { position:absolute; left:0; top:0; bottom:0; background:var(--accent); border-radius:3px; }
+.slider b { position:absolute; top:-5px; width:13px; height:13px; border-radius:50%; background:var(--surface); border:2px solid var(--accent); }
+.radio { display:flex; gap:8px; align-items:flex-start; padding:8px; border:1px solid var(--line); border-radius:6px; margin-bottom:6px; }
+.radio.on { border-color:var(--accent); background:var(--accent-soft); }
+.radio i { width:13px; height:13px; border-radius:50%; border:1.5px solid var(--muted); flex:none; margin-top:3px; }
+.radio.on i { border:4px solid var(--accent); }
+.radio small { display:block; color:var(--muted); }
+.full { grid-column:1 / -1; }
+
+.timeline { display:grid; gap:10px; margin-top:14px; }
+.ph { display:grid; grid-template-columns:110px 1fr; gap:16px; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.ph > * { min-width:0; }
+.ph .d { font-family:var(--mono); font-size:12px; color:var(--muted); }
+.ph .d b { display:block; font-size:15px; color:var(--fg); font-family:var(--sans); }
+.ph ul { margin:6px 0 0; padding-left:18px; }
+.ph .done { font-size:13px; color:var(--muted); margin-top:6px; }
+@media (max-width:560px) { .ph { grid-template-columns:1fr; gap:4px; } }
+:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Plan · Desktop tool · Draft 1 · 25 Nov 2026</div>
+  <h1>Warden: local AI review desk for merge requests</h1>
+  <p class="lede">A macOS desktop app that watches our GitLab (and later GitHub) projects, checks out each new merge request locally, runs our tests, has your local Claude review the change through a small set of MCP tools, filters the findings through guardrails, and posts line-anchored notes back to the MR. You approve what goes out, or let it post on its own once you trust it.</p>
+  <div class="facts">
+    <div><b>Shell</b><span>Tauri 2 (Rust) + React + shadcn/ui</span></div>
+    <div><b>AI engine</b><span>Claude Code CLI on your subscription</span></div>
+    <div><b>Tool bridge</b><span>Warden MCP server (read-only)</span></div>
+    <div><b>Forges</b><span>GitLab first, GitHub in v1.1</span></div>
+    <div><b>Local CI</b><span>git worktree + recipes + gitlab-ci-local</span></div>
+    <div><b>Effort to v1</b><span>About 19 dev days</span></div>
+  </div>
+</header>
+
+<section>
+  <h2>How a review flows</h2>
+  <pre class="mermaid">
+flowchart LR
+  A[Poll GitLab every 2 min] --> B{New MR or new commits?}
+  B -- no --> A
+  B -- yes --> C[Create worktree at head SHA]
+  C --> D[Deterministic checks: semgrep, gitleaks, ruff]
+  C --> E[Local CI recipes]
+  D --> F[Claude review through MCP tools]
+  E --> F
+  F --> G[Guardrail filter]
+  G --> H{Posting mode}
+  H -- Draft --> I[You approve in Warden]
+  H -- Assist / Auto --> J[Post notes to MR]
+  I --> J
+  J --> K[Watch threads, re-review on push]
+  </pre>
+  <ol class="steps">
+    <li><b>Detect.</b> The poller lists open MRs per watched project and compares the head SHA with the last reviewed SHA. Draft/WIP MRs and MRs labelled <code>no-ai-review</code> are skipped.</li>
+    <li><b>Prepare.</b> A <code>git worktree</code> is created at the MR head under <code>~/.warden/worktrees/&lt;project&gt;/&lt;iid&gt;</code>, so your own checkout is never touched.</li>
+    <li><b>Check.</b> Fast deterministic tools run first (semgrep rules, gitleaks, linters). Their hits are passed to Claude as facts, which keeps it from spending turns rediscovering them.</li>
+    <li><b>Test.</b> CI recipes from <code>.warden.yml</code> run in parallel: lint, unit tests on a test site, optionally real <code>.gitlab-ci.yml</code> jobs through gitlab-ci-local.</li>
+    <li><b>Review.</b> Claude gets the diff, the repo rules and the CI results, explores context with read-only tools, and records each issue through <code>review.add_finding</code>. It has no tool that writes to GitLab.</li>
+    <li><b>Filter and post.</b> The guardrail engine validates every finding (anchor inside the diff, confidence, severity, duplicates, note budget). Survivors go to your approval queue or straight to the MR, depending on the mode.</li>
+    <li><b>Follow up.</b> On the next push only the new commits are reviewed. Findings whose lines were fixed are resolved automatically; open threads stay open.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Architecture</h2>
+  <pre class="mermaid">
+flowchart TB
+  subgraph APP[Warden desktop app]
+    UI[Renderer: React + shadcn/ui]
+    subgraph MAIN[Rust core: Tauri backend, tokio]
+      POLL[Poller + job queue]
+      WT[Worktree manager]
+      CIR[CI runner]
+      GR[Guardrail engine]
+      POST[Poster]
+      DB[(SQLite)]
+      MCP[Warden MCP server]
+    end
+  end
+  CC[claude -p headless, subscription login]
+  FORGE[(GitLab / GitHub REST)]
+  UI <-->|Tauri commands + events| MAIN
+  POLL --> FORGE
+  POST --> FORGE
+  CC <-->|MCP tool calls| MCP
+  MCP --> WT
+  MCP --> CIR
+  MCP --> DB
+  GR --> POST
+  </pre>
+  <div class="callout"><b>Key rule: Claude proposes, Warden disposes.</b> The GitLab token lives in the macOS Keychain and is only used by the Poller and Poster. Claude reads code and records findings into SQLite; it can never post, approve, merge or push. That single boundary is what makes auto-posting safe to switch on later.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>Connecting to your Claude Code subscription</h3>
+      <ul>
+        <li><b>Engine:</b> Warden spawns the <code>claude</code> CLI you already use, in headless mode, with the MR worktree as its working directory. No Agent SDK, no API key, no per-token billing.</li>
+        <li><b>Auth:</b> the CLI's existing subscription login (Pro / Max). Warden strips <code>ANTHROPIC_API_KEY</code> and <code>ANTHROPIC_AUTH_TOKEN</code> from the child environment, because either one silently switches the CLI to API billing.</li>
+        <li><b>Tools:</b> Warden's MCP server is passed with <code>--mcp-config</code> and <code>--strict-mcp-config</code>, so Claude sees only Warden tools plus read-only built-ins.</li>
+        <li><b>Limits:</b> reviews draw on your plan's usage window, so Warden caps reviews per hour and pauses the queue near the limit instead of tracking dollars.</li>
+        <li><b>Model:</b> <code>--model opus</code>, <code>--max-turns 30</code>, 10 minute timeout per review.</li>
+      </ul>
+<pre><code>claude -p "$REVIEW_PROMPT" \
+  --output-format stream-json --verbose \
+  --mcp-config ~/.warden/mcp.json --strict-mcp-config \
+  --allowedTools "mcp__warden__*" Read Grep Glob \
+  --disallowedTools Bash Edit Write WebFetch WebSearch \
+  --model opus --max-turns 30</code></pre>
+    </div>
+    <div class="card">
+      <h3>The same MCP server, outside the app</h3>
+      <ul>
+        <li>Warden also exposes its tools as a standalone MCP server on <code>localhost</code> (streamable HTTP).</li>
+        <li>Add it to Claude Code or Claude Desktop and ask "review !31 in entries_crm" or "why did unit fail on !28" from chat.</li>
+        <li>Chat sessions get the same read-only tool set. Posting still goes through the Warden queue.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Screens</h2>
+  <p class="prose muted">Mockups for approval before build. Sample data uses our own repos and a realistic Frappe change.</p>
+
+  <!-- 1. Inbox -->
+  <figure class="shot">
+    <div class="scroller"><div class="win" role="img" aria-label="Inbox mockup">
+      <div class="titlebar"><div class="dots"><i></i><i></i><i></i></div><span class="t">Warden</span>
+        <div class="st"><span class="ok">Claude Code · Max plan</span><span class="ok">GitLab · entries</span><span>Next poll 1:42</span><span class="mono">7 reviews this window · 38% used</span></div></div>
+      <div class="app">
+        <nav class="side">
+          <a class="on" href="#">Inbox <small>5</small></a><a href="#">Approval queue <small>9</small></a><a href="#">CI runs</a><a href="#">History</a>
+          <div class="sec">Setup</div><a href="#">Guardrails</a><a href="#">Projects</a><a href="#">Connections</a>
+        </nav>
+        <div class="main">
+          <div class="toolbar"><span class="chip on">All projects</span><span class="chip">entries_crm</span><span class="chip">entries_platform</span><span class="chip">entries_lnd</span><span class="chip">beacon</span><span class="spacer"></span><button class="btn">Poll now</button><button class="btn pri">Review MR…</button></div>
+          <table class="mt">
+            <thead><tr><th>MR</th><th>Title</th><th>Size</th><th>CI</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="mr">!31</td><td><div class="ttl">feat(import): link review rows to leads</div><div class="sub">entries_crm · vinay · feat/import-links → develop</div></td><td><span class="add">+412</span> <span class="del">−38</span></td><td><span class="pill p-green">3 / 3</span></td><td><span class="pill p-orange">Awaiting approval · 6 findings</span></td><td><button class="btn">Open</button></td></tr>
+              <tr><td class="mr">!29</td><td><div class="ttl">feat(ai): tool-call audit trail</div><div class="sub">entries_crm · feat/ai-audit → feat/ai-integration</div></td><td><span class="add">+188</span> <span class="del">−12</span></td><td><span class="pill p-blue">running</span></td><td><span class="pill p-blue">Reviewing · turn 9 / 30</span><div class="bar"><i style="width:30%"></i></div></td><td><button class="btn">Watch</button></td></tr>
+              <tr><td class="mr">!28</td><td><div class="ttl">fix(desk): SLA timer on reopen</div><div class="sub">entries_desk · fix/sla-reopen → develop</div></td><td><span class="add">+64</span> <span class="del">−21</span></td><td><span class="pill p-red">unit failed</span></td><td><span class="pill p-orange">Awaiting approval · 2 findings + CI</span></td><td><button class="btn">Open</button></td></tr>
+              <tr><td class="mr">!27</td><td><div class="ttl">fix(security): close review findings</div><div class="sub">entries_crm · fix/security-review → develop</div></td><td><span class="add">+96</span> <span class="del">−40</span></td><td><span class="pill p-green">3 / 3</span></td><td><span class="pill p-green">Posted · 2 notes · 1 resolved</span></td><td><button class="btn">View</button></td></tr>
+              <tr><td class="mr">!26</td><td><div class="ttl">Draft: projects wave 0 extraction</div><div class="sub">entries_project · wave-0 → develop</div></td><td><span class="add">+1.9k</span> <span class="del">−310</span></td><td><span class="pill p-grey">skipped</span></td><td><span class="pill p-grey">Skipped · draft MR</span></td><td><button class="btn">Review anyway</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div></div>
+    <figcaption><b>1 · Inbox.</b> Every open MR across watched projects with its review and CI state. The title bar shows engine and forge health, the poll countdown and how much of the current subscription usage window reviews have used.</figcaption>
+  </figure>
+
+  <!-- 2. Review -->
+  <figure class="shot">
+    <div class="scroller"><div class="win" role="img" aria-label="Review detail mockup">
+      <div class="titlebar"><div class="dots"><i></i><i></i><i></i></div><span class="t">!31 · feat(import): link review rows to leads</span>
+        <div class="st"><span>Reviewed a1c9e04 → 7f3b2d1</span><span class="mono">22 turns · 4m 10s · subscription</span></div></div>
+      <div class="rv">
+        <div class="tree">
+          <div class="dir">entries_crm/api/</div>
+          <div class="on"><span>import_links.py</span><span class="pill p-red">2</span></div>
+          <div><span>importer.py</span><span class="pill p-orange">1</span></div>
+          <div class="dir">frontend/src/import/</div>
+          <div><span>ReviewTable.tsx</span><span class="pill p-yellow">2</span></div>
+          <div><span>useImportLinks.ts</span><span class="pill p-grey">1</span></div>
+          <div class="dir">tests/</div>
+          <div><span>test_import_links.py</span><span></span></div>
+          <div class="dir">skipped</div>
+          <div class="muted"><span>yarn.lock</span><span></span></div>
+        </div>
+        <div class="diff">
+          <div class="diffhead"><span>entries_crm/api/import_links.py</span><span class="add">+48</span><span class="del">−3</span></div>
+          <div class="dl h"><span class="n"></span><span class="n"></span><span>@@ -10,6 +10,22 @@ import json</span></div>
+          <div class="dl"><span class="n">10</span><span class="n">10</span><span>import frappe</span></div>
+          <div class="dl a"><span class="n"></span><span class="n">11</span><span>+</span></div>
+          <div class="dl a"><span class="n"></span><span class="n">12</span><span>+@frappe.whitelist()</span></div>
+          <div class="dl a"><span class="n"></span><span class="n">13</span><span>+def link_import_rows(import_name, rows):</span></div>
+          <div class="inline o"><div class="hd"><span class="pill p-orange">Major</span><b>Whitelisted method has no permission check</b><span class="rule">FR-001 · confidence 0.91</span></div>
+            Any logged-in user can call this and relink rows of an import they cannot read. Check access to the import before touching rows.
+            <pre><code>frappe.get_doc("ECRM Data Import", import_name).check_permission("write")</code></pre>
+            <div class="acts"><button class="btn pri">Approve</button><button class="btn">Edit</button><button class="btn">Dismiss</button></div></div>
+          <div class="dl a"><span class="n"></span><span class="n">14</span><span>+    rows = json.loads(rows)</span></div>
+          <div class="dl a"><span class="n"></span><span class="n">15</span><span>+    for r in rows:</span></div>
+          <div class="dl a"><span class="n"></span><span class="n">16</span><span>+        frappe.db.sql(f"update `tabECRM Lead` set import_ref='{import_name}' where name='{r}'")</span></div>
+          <div class="inline"><div class="hd"><span class="pill p-red">Blocker</span><b>SQL built with an f-string from request input</b><span class="rule">FR-002 · semgrep hit + Claude · confidence 0.98</span></div>
+            <code>import_name</code> and each <code>r</code> come straight from the request, so this is injectable. Use <code>frappe.db.set_value</code> or a parameterised query.
+            <pre><code>frappe.db.set_value("ECRM Lead", r, "import_ref", import_name)</code></pre>
+            <div class="acts"><button class="btn pri">Approve</button><button class="btn">Edit</button><button class="btn">Dismiss</button></div></div>
+          <div class="dl a"><span class="n"></span><span class="n">17</span><span>+    frappe.db.commit()</span></div>
+          <div class="dl d"><span class="n">11</span><span class="n"></span><span>-# legacy linker removed</span></div>
+        </div>
+        <div class="fpanel">
+          <div class="hdr"><span>Findings · 6</span><span class="muted mono" style="font-size:11px">4 selected</span></div>
+          <div class="fi"><span class="cb x"></span><div><span class="pill p-red">Blocker</span> SQL from request input<div class="meta">import_links.py:16 · FR-002</div></div></div>
+          <div class="fi"><span class="cb x"></span><div><span class="pill p-orange">Major</span> No permission check<div class="meta">import_links.py:13 · FR-001</div></div></div>
+          <div class="fi"><span class="cb x"></span><div><span class="pill p-orange">Major</span> Explicit commit inside request<div class="meta">import_links.py:17 · FR-007</div></div></div>
+          <div class="fi"><span class="cb x"></span><div><span class="pill p-yellow">Minor</span> Row state lost on page change<div class="meta">ReviewTable.tsx:88 · general</div></div></div>
+          <div class="fi dim"><span class="cb"></span><div><span class="pill p-yellow">Minor</span> Missing loading state<div class="meta">ReviewTable.tsx:41 · conf 0.62 · below threshold</div></div></div>
+          <div class="fi dim"><span class="cb"></span><div><span class="pill p-grey">Nit</span> Hook name<div class="meta">useImportLinks.ts:3 · nits off</div></div></div>
+          <div class="card" style="padding:8px 10px;font-size:12px"><b>Summary note</b><br><span class="muted">2 blocking issues in the new linker endpoint (injection, permissions). Tests pass 3/3. Frontend looks fine apart from pagination state.</span></div>
+        </div>
+      </div>
+      <div class="foot"><span class="seg"><span class="on">Draft</span><span>Assist</span><span>Auto</span></span><span class="muted">Guardrails dropped 2 · 0 duplicates of existing threads</span><span class="spacer"></span><button class="btn">Re-run review</button><button class="btn">Copy as markdown</button><button class="btn pri">Post 4 notes + summary to GitLab</button></div>
+    </div></div>
+    <figcaption><b>2 · Review.</b> Diff with Claude's findings inline, each tagged with the rule it cites and its confidence. Greyed items were held back by guardrails and can still be posted by hand. Edits you make before posting are saved and later used to tune the rules.</figcaption>
+  </figure>
+
+  <!-- 3. CI -->
+  <figure class="shot">
+    <div class="scroller"><div class="win" role="img" aria-label="Local CI mockup">
+      <div class="titlebar"><div class="dots"><i></i><i></i><i></i></div><span class="t">Local CI · !28 · fix(desk): SLA timer on reopen</span>
+        <div class="st"><span>worktree ~/.warden/worktrees/entries_desk/28</span><span>sha 9e1f0aa</span></div></div>
+      <div class="ci">
+        <div class="jobs">
+          <div class="job"><div><b>lint</b><br><small>ruff + eslint · changed files</small></div><span class="pill p-green">18s</span></div>
+          <div class="job"><div><b>secrets</b><br><small>gitleaks · diff only</small></div><span class="pill p-green">3s</span></div>
+          <div class="job"><div><b>semgrep</b><br><small>frappe ruleset · 14 rules</small></div><span class="pill p-green">11s</span></div>
+          <div class="job on"><div><b>unit</b><br><small>bench run-tests · desk_test.localhost</small></div><span class="pill p-red">4m 12s</span></div>
+          <div class="job"><div><b>gitlab-ci:build</b><br><small>gitlab-ci-local · docker</small></div><span class="pill p-blue">running</span></div>
+          <div style="margin-top:auto;display:flex;gap:6px"><button class="btn">Re-run failed</button><button class="btn danger">Stop</button></div>
+        </div>
+        <div style="min-width:0">
+<div class="log"><span class="m">$ bench --site desk_test.localhost run-tests --app entries_desk --module entries_desk.sla.test_sla</span>
+<span class="m">Running 12 tests</span>
+<span class="g">test_first_response_breach ... ok</span>
+<span class="g">test_pause_on_customer_reply ... ok</span>
+<span class="e">test_resume_after_reopen ... FAIL</span>
+<span class="e">AssertionError: 7200.0 != 3600.0 : remaining seconds after reopen</span>
+<span class="m">  File "entries_desk/sla/test_sla.py", line 141, in test_resume_after_reopen</span>
+<span class="m">Ran 12 tests in 251.4s · FAILED (failures=1)</span></div>
+          <div class="explain"><div class="hd"><span class="pill p-blue">Claude</span>Likely cause</div>
+            <code>on_reopen()</code> in <code>sla/timer.py:58</code> now resets <code>paused_seconds</code> to 0 before computing remaining time, so the hour spent paused is counted twice. The test expectation looks right; the change in the MR is the bug.
+            <div style="display:flex;gap:6px;margin-top:8px"><button class="btn pri">Add as finding on timer.py:58</button><button class="btn">Open log</button></div></div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption><b>3 · Local CI.</b> Recipes from <code>.warden.yml</code> run in the MR worktree, logs stream live. When a job fails, Claude reads the log and the diff and proposes a finding anchored to the line that broke it.</figcaption>
+  </figure>
+
+  <!-- 4. Guardrails -->
+  <figure class="shot">
+    <div class="scroller"><div class="win" role="img" aria-label="Guardrails mockup">
+      <div class="titlebar"><div class="dots"><i></i><i></i><i></i></div><span class="t">Guardrails · entries_crm</span><div class="st"><span>Source: .warden.yml on develop + local overrides</span></div></div>
+      <div class="form">
+        <div class="fs full"><h4>Posting mode</h4>
+          <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap"><span class="seg"><span>Draft</span><span class="on">Assist</span><span>Auto</span></span>
+          <span class="muted" style="font-size:12px">Assist: blockers and majors at confidence ≥ 0.85 post automatically, everything else waits for approval.</span>
+          <span class="spacer"></span><button class="btn danger">Pause all posting</button></div></div>
+        <div class="fs"><h4>Output filters</h4>
+          <div class="row"><span>Minimum confidence</span><span style="display:flex;gap:8px;align-items:center"><span class="slider"><i style="width:70%"></i><b style="left:64%"></b></span><span class="mono">0.70</span></span></div>
+          <div class="row"><span>Lowest severity posted</span><span class="inp">minor</span></div>
+          <div class="row"><span>Max notes per MR</span><span class="inp">10</span></div>
+          <div class="row"><span>Anchor must be on a changed line</span><span class="tog on"></span></div>
+          <div class="row"><span>Drop duplicates of open threads</span><span class="tog on"></span></div>
+          <div class="row"><span>Require rule id or evidence</span><span class="tog on"></span></div>
+          <div class="row"><span>Post nits</span><span class="tog"></span></div>
+        </div>
+        <div class="fs"><h4>Agent limits</h4>
+          <div class="row"><span>Max turns per review</span><span class="inp">30</span></div>
+          <div class="row"><span>Max reviews per hour</span><span class="inp">6</span></div>
+          <div class="row"><span>Pause queue at usage window</span><span class="inp">80%</span></div>
+          <div class="row"><span>Timeout</span><span class="inp">10 min</span></div>
+          <div class="row"><span>Shell access for Claude</span><span class="pill p-grey">off · CI via recipes only</span></div>
+          <div class="row"><span>Network access for Claude</span><span class="pill p-grey">off</span></div>
+          <div class="row"><span>Redact secrets before sending</span><span class="tog on"></span></div>
+        </div>
+        <div class="fs full"><h4>Review rules · 9 active</h4>
+          <div class="row"><span><span class="mono muted">FR-001</span> Whitelisted methods must check permissions</span><span style="display:flex;gap:10px;align-items:center"><span class="pill p-orange">Major</span><span class="pill p-blue">Claude</span><span class="tog on"></span></span></div>
+          <div class="row"><span><span class="mono muted">FR-002</span> No f-string or %-formatted SQL</span><span style="display:flex;gap:10px;align-items:center"><span class="pill p-red">Blocker</span><span class="pill p-grey">semgrep</span><span class="tog on"></span></span></div>
+          <div class="row"><span><span class="mono muted">FR-004</span> <code>ignore_permissions=True</code> needs a comment saying why</span><span style="display:flex;gap:10px;align-items:center"><span class="pill p-orange">Major</span><span class="pill p-blue">Claude</span><span class="tog on"></span></span></div>
+          <div class="row"><span><span class="mono muted">FR-007</span> No <code>frappe.db.commit()</code> in request handlers</span><span style="display:flex;gap:10px;align-items:center"><span class="pill p-orange">Major</span><span class="pill p-grey">semgrep</span><span class="tog on"></span></span></div>
+          <div class="row"><span><span class="mono muted">UI-002</span> New screens use @entries/ui components, not raw HTML controls</span><span style="display:flex;gap:10px;align-items:center"><span class="pill p-yellow">Minor</span><span class="pill p-blue">Claude</span><span class="tog on"></span></span></div>
+          <div class="row"><span><span class="mono muted">GJ-003</span> Doctype JSON changes must match a generator run</span><span style="display:flex;gap:10px;align-items:center"><span class="pill p-orange">Major</span><span class="pill p-blue">Claude</span><span class="tog"></span></span></div>
+        </div>
+      </div>
+    </div></div>
+    <figcaption><b>4 · Guardrails.</b> Posting mode, output filters, agent budgets and the rule list per project. Rules marked semgrep are deterministic and cost nothing; rules marked Claude become review instructions the model must cite.</figcaption>
+  </figure>
+
+  <!-- 5. Connections -->
+  <figure class="shot">
+    <div class="scroller"><div class="win" role="img" aria-label="Connections mockup">
+      <div class="titlebar"><div class="dots"><i></i><i></i><i></i></div><span class="t">Connections</span></div>
+      <div class="form">
+        <div class="fs"><h4>Claude engine</h4>
+          <div class="radio on"><i></i><div><b>Claude Code subscription</b><small><code>claude -p</code> headless using your logged-in Pro / Max plan</small></div></div>
+          <div class="row"><span class="k">CLI</span><span class="inp">/opt/homebrew/bin/claude</span></div>
+          <div class="row"><span class="k">Login</span><span class="inp">Claude Max · subscription</span></div>
+          <div class="row"><span class="k">API key in env</span><span class="pill p-green">none · stripped for child process</span></div>
+          <div class="row"><span class="k">Model</span><span class="inp">opus · max 30 turns</span></div>
+          <div class="row"><span class="k">Status</span><span class="ok">Connected · 8 Warden tools visible</span></div>
+          <div style="margin-top:8px"><button class="btn">Test with sample diff</button></div>
+        </div>
+        <div class="fs"><h4>Forges</h4>
+          <div class="row"><span><b>GitLab</b><br><span class="k">gitlab.com/entries · project access token, bot user warden-bot</span></span><span class="ok">OK</span></div>
+          <div class="row"><span class="k">Scopes</span><span class="mono" style="font-size:12px">api (read + notes)</span></div>
+          <div class="row"><span><b>GitHub</b><br><span class="k">Fine-grained token · pull requests: read/write</span></span><button class="btn">Connect</button></div>
+          <div class="row"><span class="k">MCP server for chat</span><span class="mono" style="font-size:12px">http://127.0.0.1:7811/mcp</span></div>
+        </div>
+        <div class="fs full"><h4>Watched projects</h4>
+          <table class="mt">
+            <thead><tr><th>Project</th><th>Local repo</th><th>Target branches</th><th>Mode</th><th>Poll</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="ttl">entries/entries_crm</td><td class="mono">~/Desktop/Entries/benches/crmv15/apps/entries_crm</td><td class="mono">develop, feat/*</td><td><span class="pill p-blue">Assist</span></td><td>2 min</td><td><span class="tog on"></span></td></tr>
+              <tr><td class="ttl">entries/entries_platform</td><td class="mono">~/Desktop/Entries/benches/crmv15/apps/entries_platform</td><td class="mono">develop</td><td><span class="pill p-grey">Draft</span></td><td>5 min</td><td><span class="tog on"></span></td></tr>
+              <tr><td class="ttl">entries/entries_desk</td><td class="mono">~/Desktop/Entries/benches/crmv15/apps/entries_desk</td><td class="mono">develop</td><td><span class="pill p-grey">Draft</span></td><td>5 min</td><td><span class="tog on"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div></div>
+    <figcaption><b>5 · Connections.</b> Claude Code CLI health check (confirms subscription login and that no API key will be used), forge tokens (stored in the Keychain, posting as a bot user so AI notes are clearly marked), and the list of watched projects mapped to local clones.</figcaption>
+  </figure>
+</section>
+
+<section>
+  <h2>Guardrails in layers</h2>
+  <p class="prose">Each layer catches something the one before cannot. Layers 1, 2 and 4 are plain code, so they hold even if the model misbehaves or the MR contains prompt-injection text.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Layer</th><th>What it does</th><th>Enforced by</th></tr></thead>
+    <tbody>
+      <tr><td><b>1 · Input</b></td><td>MR title, description and code are wrapped as untrusted data. Secrets are redacted with gitleaks before anything is sent. Lockfiles, minified and generated files are skipped. Large diffs are split per file.</td><td>Warden main process</td></tr>
+      <tr><td><b>2 · Agent sandbox</b></td><td>Tool allowlist: Warden MCP tools plus Read/Grep/Glob scoped to the worktree. No Bash, no web, no write tools. A <code>PreToolUse</code> hook in a Warden-only settings file rejects any path outside the worktree. Turn and time caps per review.</td><td>CLI <code>--allowedTools</code>, <code>--disallowedTools</code>, <code>--strict-mcp-config</code>, <code>--max-turns</code>, hook</td></tr>
+      <tr><td><b>3 · Review rules</b></td><td>Repo rules from <code>.warden.yml</code> go into the system prompt. Each finding must cite a rule id or concrete evidence. Deterministic rules (semgrep, regex) run outside the model and are passed in as facts.</td><td>Prompt + structured output schema</td></tr>
+      <tr><td><b>4 · Output validation</b></td><td>Schema check; file and line must sit on a changed line of the diff; confidence and severity thresholds; per-MR note budget; dedupe against existing discussions by content hash; tone check (no "LGTM", no speculation without evidence).</td><td>Guardrail engine (pure functions, unit tested)</td></tr>
+      <tr><td><b>5 · Posting policy</b></td><td>Draft, Assist or Auto per project. Global pause switch. Never approves, merges or changes labels except <code>ai-reviewed</code>. Posts as a bot user. Rate limit on notes per hour.</td><td>Poster</td></tr>
+      <tr><td><b>6 · Audit</b></td><td>Every run stores prompt, tool calls, cost, raw findings, guardrail decisions and what was posted, so a bad note can be traced and the rule fixed.</td><td>SQLite + History screen</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Repo rules file</h3>
+  <p class="prose">Lives in each repo so rules are reviewed like code. Warden adds local overrides on top.</p>
+<pre><code># .warden.yml
+version: 1
+review:
+  focus: [security, correctness, frappe-permissions, performance]
+  ignore_paths: ["yarn.lock", "**/*.min.js", "**/dist/**"]
+  max_notes: 10
+  min_confidence: 0.7
+  severity_floor: minor
+  nits: false
+
+rules:
+  - id: FR-001
+    title: Whitelisted methods must check permissions
+    applies_to: "**/*.py"
+    instruction: >
+      Any @frappe.whitelist() function that reads or writes documents must call
+      frappe.has_permission, doc.check_permission or frappe.only_for first.
+    severity: major
+  - id: FR-002
+    title: No string-formatted SQL
+    semgrep: rules/frappe-sql-fstring.yml     # deterministic, no model call
+    severity: blocker
+
+ci:
+  recipes:
+    - name: lint
+      run: ruff check {changed_py} && npx eslint {changed_ts}
+    - name: unit
+      run: bench --site crm_test.localhost run-tests --app entries_crm --failfast
+      cwd: ../..            # bench root
+      timeout: 15m
+    - name: gitlab-ci
+      use: gitlab-ci-local
+      jobs: [build]
+
+posting:
+  mode: assist
+  auto_post: { severities: [blocker, major], min_confidence: 0.85 }
+  summary_note: true</code></pre>
+
+  <h3>Finding schema (Claude output)</h3>
+<pre><code>{
+  "file": "entries_crm/api/import_links.py",
+  "line": 16,
+  "side": "new",
+  "severity": "blocker",          // blocker | major | minor | nit
+  "category": "security",
+  "rule_id": "FR-002",            // or null with evidence filled
+  "title": "SQL built with an f-string from request input",
+  "body": "import_name and each r come straight from the request ...",
+  "suggestion": "frappe.db.set_value(\"ECRM Lead\", r, \"import_ref\", import_name)",
+  "evidence": "rows = json.loads(rows) on line 14; no sanitising before line 16",
+  "confidence": 0.98
+}</code></pre>
+</section>
+
+<section>
+  <h2>MCP tool surface</h2>
+  <p class="prose">Small on purpose. Every tool is read-only against the forge; the only writes go to Warden's own database.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Tool</th><th>Purpose</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>mr.get_overview</code></td><td>Title, description, author, branches, labels, existing discussions</td><td>Description returned inside an untrusted-content wrapper</td></tr>
+      <tr><td><code>mr.get_diff</code></td><td>Unified diff per file, optionally only commits since last review</td><td>Redacted, paginated by file</td></tr>
+      <tr><td><code>repo.read_file</code></td><td>File content at head or base SHA</td><td>Path must resolve inside the worktree</td></tr>
+      <tr><td><code>repo.search</code></td><td>ripgrep over the worktree for callers, usages, similar code</td><td>Result count capped</td></tr>
+      <tr><td><code>ci.get_results</code></td><td>Status and failing excerpts of each recipe</td><td>Claude cannot start arbitrary commands</td></tr>
+      <tr><td><code>ci.run_recipe</code></td><td>Re-run one named recipe from <code>.warden.yml</code></td><td>Allowlisted names only, counts against budget</td></tr>
+      <tr><td><code>review.add_finding</code></td><td>Record one finding (schema above)</td><td>Validated on insert, returns rejection reason</td></tr>
+      <tr><td><code>review.submit</code></td><td>Finish with a summary note and overall verdict</td><td>Ends the run</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Local CI</h2>
+  <div class="grid2">
+    <div class="card"><h3>Isolation</h3><ul>
+      <li>One <code>git worktree</code> per MR, pruned after merge or close.</li>
+      <li>Recipes run with <code>tokio::process</code>, a clean env, and a per-job timeout.</li>
+      <li>Optional Docker mode: <code>docker run --network none -v worktree:/src</code> for untrusted forks.</li>
+    </ul></div>
+    <div class="card"><h3>Runners</h3><ul>
+      <li><b>Recipes:</b> any shell command with placeholders like <code>{changed_py}</code>.</li>
+      <li><b>gitlab-ci-local:</b> runs real <code>.gitlab-ci.yml</code> jobs on this Mac.</li>
+      <li><b>act:</b> same for GitHub Actions when GitHub lands.</li>
+    </ul></div>
+    <div class="card"><h3>Frappe specifics</h3><ul>
+      <li>Unit tests need a site: one dedicated test site per bench (e.g. <code>crm_test.localhost</code>).</li>
+      <li>Worktree is symlinked into the bench apps folder only for the test run, then restored, so the dev site keeps working.</li>
+      <li>One bench test run at a time per bench (queue lock).</li>
+    </ul></div>
+    <div class="card"><h3>Reporting</h3><ul>
+      <li>Results table goes into the summary note.</li>
+      <li>Failures are handed to Claude with the diff to explain and anchor.</li>
+      <li>Optional: set a GitLab commit status <code>warden/local-ci</code> (off by default).</li>
+    </ul></div>
+  </div>
+</section>
+
+<section>
+  <h2>Tech stack</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Area</th><th>Choice</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Desktop shell</td><td>Tauri 2, Rust backend on tokio, no Node sidecar</td><td>About a 10 MB app and low idle memory. One signed binary. Core logic sits in a <code>warden-core</code> crate with its own tests; the Tauri crate only adds commands, events, tray and notifications.</td></tr>
+      <tr><td>UI</td><td>React 18, Tailwind, shadcn/ui, TanStack Query + Router</td><td>Same stack as our CRM frontends; <code>@entries/ui</code> components can be reused.</td></tr>
+      <tr><td>Diff view</td><td><code>@git-diff-view/react</code></td><td>Split/unified diff with widget slots for inline finding cards.</td></tr>
+      <tr><td>Logs and rules editor</td><td>xterm.js, Monaco with a YAML schema for <code>.warden.yml</code></td><td>Live CI logs, validated rule editing.</td></tr>
+      <tr><td>AI engine</td><td><code>claude</code> CLI in headless mode (<code>-p</code>, <code>stream-json</code>), subscription login, <code>--model opus</code></td><td>Uses your Claude Code plan instead of API tokens. Warden parses the JSON event stream for progress, turns and errors.</td></tr>
+      <tr><td>MCP</td><td><code>rmcp</code> (official Rust MCP SDK), streamable HTTP on 127.0.0.1</td><td>Runs inside the app; <code>claude -p</code> connects to it by URL. Same endpoint usable from Claude Code / Claude Desktop chat.</td></tr>
+      <tr><td>Forge clients</td><td><code>reqwest</code> + <code>serde</code> thin GitLab client; <code>octocrab</code> for GitHub</td><td>Warden needs about ten GitLab endpoints, so a small typed client is simpler than a full SDK. Both behind one <code>ForgeProvider</code> trait.</td></tr>
+      <tr><td>Git</td><td><code>git</code> CLI via <code>tokio::process</code> (<code>git worktree</code>, <code>git diff</code>)</td><td>libgit2's worktree support is thin; the CLI is what we run by hand anyway.</td></tr>
+      <tr><td>Static checks</td><td>semgrep, gitleaks, ruff, eslint</td><td>Cheap deterministic signal before the model runs.</td></tr>
+      <tr><td>Local CI</td><td><code>tokio::process</code> runner; gitlab-ci-local, act and Docker called as external tools</td><td>Runs our real pipelines locally. gitlab-ci-local still needs Node on the machine, which every dev here has.</td></tr>
+      <tr><td>Storage</td><td>SQLite via <code>sqlx</code> with migrations</td><td>Single file in <code>~/Library/Application Support/Warden</code>, compile-time checked queries.</td></tr>
+      <tr><td>Secrets</td><td><code>keyring</code> crate (macOS Keychain)</td><td>Tokens never in plain files or in the model context.</td></tr>
+      <tr><td>Jobs</td><td>tokio tasks with a semaphore and per-bench mutex</td><td>Limits parallel reviews and CI runs.</td></tr>
+      <tr><td>Packaging</td><td>Tauri bundler, signed + notarised DMG, <code>tauri-plugin-updater</code> later</td><td>Installable by the team.</td></tr>
+      <tr><td>Tests</td><td><code>cargo test</code> for guardrails and diff parsing; Vitest for the UI with mocked <code>invoke</code></td><td>Guardrails are pure functions with fixture diffs. UI is checked in a browser against mock data.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Data model</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Table</th><th>Key fields</th></tr></thead>
+    <tbody>
+      <tr><td><code>project</code></td><td>forge, remote id, local path, target branch globs, mode, poll interval</td></tr>
+      <tr><td><code>merge_request</code></td><td>project, iid, title, author, head sha, last reviewed sha, state</td></tr>
+      <tr><td><code>review_run</code></td><td>mr, base..head range, model, turns, duration, CLI session id, status, started/ended</td></tr>
+      <tr><td><code>finding</code></td><td>run, file, line, severity, rule id, confidence, body, status (draft / approved / posted / dismissed / resolved), forge note id, guardrail verdict</td></tr>
+      <tr><td><code>ci_run</code>, <code>ci_job</code></td><td>mr, sha, recipe, status, duration, log path, failure excerpt</td></tr>
+      <tr><td><code>audit_event</code></td><td>run, type (tool_call / guardrail / post), payload JSON</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Build phases</h2>
+  <div class="timeline">
+    <div class="ph"><div class="d"><b>Phase 0</b>3 days</div><div><b>Skeleton and connections</b><ul><li>Tauri 2 workspace (<code>warden-core</code> + app crate), Vite React shadcn shell, sqlx SQLite, Keychain storage</li><li>GitLab provider: list projects and open MRs, fetch diff and discussions</li><li>Engine health check: find the <code>claude</code> binary, confirm subscription login, strip API key env vars, run a test prompt with the Warden MCP config</li></ul><div class="done">Done when: Inbox lists real MRs from entries_crm.</div></div></div>
+    <div class="ph"><div class="d"><b>Phase 1</b>5 days</div><div><b>Claude review</b><ul><li>Worktree manager, Warden MCP tools, system prompt from <code>.warden.yml</code></li><li>Structured findings, Review screen with diff and inline cards</li><li>Turn and time caps; reviews-per-hour limit against the usage window</li></ul><div class="done">Done when: "Review MR…" on !31 produces anchored findings in the app.</div></div></div>
+    <div class="ph"><div class="d"><b>Phase 2</b>2 days</div><div><b>Posting</b><ul><li>Inline discussions with position (base, start, head SHA) and summary note</li><li>Approve / edit / dismiss, dedupe against existing threads, bot user</li></ul><div class="done">Done when: approved findings appear as line comments on GitLab.</div></div></div>
+    <div class="ph"><div class="d"><b>Phase 3</b>3 days</div><div><b>Local CI</b><ul><li>Recipe runner with live logs, gitlab-ci-local, bench test-site support</li><li>Failure explanation feeding back into findings</li></ul><div class="done">Done when: !28 shows the failing SLA test with a proposed finding.</div></div></div>
+    <div class="ph"><div class="d"><b>Phase 4</b>4 days</div><div><b>Guardrails and automation</b><ul><li>Guardrail engine with tests, semgrep and gitleaks integration</li><li>Poller, Assist and Auto modes, incremental re-review, auto-resolve</li><li>Guardrails screen, History and audit view</li></ul><div class="done">Done when: a new push to a watched MR is reviewed and posted in Assist mode without a click.</div></div></div>
+    <div class="ph"><div class="d"><b>Phase 5</b>2 days</div><div><b>GitHub and packaging</b><ul><li>GitHub provider (pull request reviews API), act runner</li><li>Signed DMG, tray icon, notifications, standalone MCP endpoint for chat</li></ul><div class="done">Done when: the team can install the DMG and point it at their repos.</div></div></div>
+  </div>
+  <p class="muted" style="margin-top:12px">Running cost: no API spend. Reviews count against your Claude Code plan's usage limits, so a busy day of MRs competes with your own coding sessions. The hourly cap and the pause threshold keep headroom for you.</p>
+</section>
+
+<section>
+  <h2>Decisions needed before build</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Question</th><th>Recommendation</th><th>Alternative</th></tr></thead>
+    <tbody>
+      <tr><td>Desktop shell</td><td><b>Decided:</b> Tauri 2 with a pure Rust backend. Small, fast app; about 3 extra build days versus Electron because the MCP server and GitLab client are written in Rust.</td><td>None</td></tr>
+      <tr><td>Claude engine</td><td><b>Decided:</b> Claude Code CLI on each developer's own subscription, no API key</td><td>None</td></tr>
+      <tr><td>Default posting mode</td><td>Draft for the first two weeks, then Assist per project</td><td>Assist from day one</td></tr>
+      <tr><td>Where rules live</td><td><code>.warden.yml</code> in each repo, plus local overrides</td><td>App-only settings</td></tr>
+      <tr><td>MR detection</td><td>Polling every 2 to 5 minutes (works behind NAT, no setup)</td><td>GitLab webhooks through a tunnel</td></tr>
+      <tr><td>Who posts</td><td>A <code>warden-bot</code> project access token</td><td>Your personal token</td></tr>
+      <tr><td>Repo location</td><td>New repo <code>entries/warden</code>, outside the benches</td><td>Folder inside ai_workspace</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Risks</h3>
+  <div class="grid2">
+    <div class="card"><h3>Noisy reviews</h3><p class="muted">Too many low-value notes and people stop reading. Mitigated by the note budget, confidence floor, nits off, and starting in Draft mode.</p></div>
+    <div class="card"><h3>Prompt injection in MRs</h3><p class="muted">An MR description or code comment tries to steer the reviewer. Mitigated by untrusted wrapping, no write tools, and code-level output checks.</p></div>
+    <div class="card"><h3>Bench test side effects</h3><p class="muted">Running tests can disturb the dev site. Mitigated by a separate test site, per-bench lock and restoring the apps symlink after each run.</p></div>
+    <div class="card"><h3>Hitting plan limits</h3><p class="muted">Big MRs or a burst of pushes can use up the usage window. Mitigated by the hourly cap, pause threshold, per-file diff splitting, and reviewing only new commits on re-push. Each developer runs Warden on their own plan rather than one shared login.</p></div>
+    <div class="card"><h3>Line anchors drifting</h3><p class="muted">GitLab rejects positions that are off the diff. Mitigated by validating each anchor against the parsed diff before posting, with fallback to a file-level note.</p></div>
+  </div>
+</section>
+
+</div>
