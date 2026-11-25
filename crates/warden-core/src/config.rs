@@ -167,6 +167,43 @@ pub struct PostingConfig {
     pub auto_post: AutoPost,
     pub summary_note: bool,
     pub max_notes_per_hour: u32,
+    /// What Warden does to the MR's review status after posting (off by default).
+    pub mr_status: MrStatusConfig,
+}
+
+/// How Warden marks the merge request after it posts notes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize, TS)]
+#[serde(rename_all = "snake_case")]
+#[ts(export, export_to = "../../ui/src/bindings/")]
+pub enum MrStatusMode {
+    /// Leave the MR's status alone.
+    #[default]
+    Off,
+    /// Scoped labels `warden::approved` / `warden::changes-requested` (every GitLab and GitHub).
+    Labels,
+    /// The forge's own review state: GitHub "Approve" / "Request changes" reviews; GitLab
+    /// approve / unapprove plus the changes-requested label (GitLab's REST API has no
+    /// "request changes" call).
+    Review,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, TS)]
+#[serde(default)]
+#[ts(export, export_to = "../../ui/src/bindings/")]
+pub struct MrStatusConfig {
+    pub mode: MrStatusMode,
+    /// A posted or still-pending finding at one of these severities means "changes requested".
+    /// With none of them (and Claude's verdict is not "request changes") the MR is approved.
+    pub request_changes_on: Vec<Severity>,
+}
+
+impl Default for MrStatusConfig {
+    fn default() -> Self {
+        Self {
+            mode: MrStatusMode::Off,
+            request_changes_on: vec![Severity::Blocker, Severity::Major],
+        }
+    }
 }
 
 impl Default for PostingConfig {
@@ -176,6 +213,7 @@ impl Default for PostingConfig {
             auto_post: AutoPost::default(),
             summary_note: true,
             max_notes_per_hour: 30,
+            mr_status: MrStatusConfig::default(),
         }
     }
 }

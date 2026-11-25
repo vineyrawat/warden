@@ -423,3 +423,40 @@ async fn provider_for_routes_github_projects() {
     let p = provider_for(&project(&server.uri()), TOKEN.into());
     assert_eq!(p.whoami().await.unwrap(), "factory");
 }
+
+#[tokio::test]
+async fn review_status_submits_review_event() {
+    use warden_core::MrReviewStatus;
+    let server = MockServer::start().await;
+    Mock::given(method("POST"))
+        .and(path("/api/v3/repos/acme/app/pulls/12/reviews"))
+        .and(body_json(
+            json!({"event": "REQUEST_CHANGES", "body": "fix the blocker"}),
+        ))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"id": 1})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("DELETE"))
+        .and(path(
+            "/api/v3/repos/acme/app/issues/12/labels/warden%3A%3Aapproved",
+        ))
+        .respond_with(
+            ResponseTemplate::new(404).set_body_json(json!({"message": "Label does not exist"})),
+        )
+        .mount(&server)
+        .await;
+    let p = provider(&server);
+    let mut proj = project(&server.uri());
+    proj.remote_id = "acme/app".into();
+    p.set_review_status(
+        &proj,
+        12,
+        MrReviewStatus::ChangesRequested,
+        "fix the blocker",
+    )
+    .await
+    .unwrap();
+    // A label that is not on the PR is not an error.
+    p.remove_label(&proj, 12, "warden::approved").await.unwrap();
+}

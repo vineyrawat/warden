@@ -18,7 +18,7 @@ use serde::{Deserialize, Serialize};
 use super::gitlab::encode_component;
 use super::{truncate_msg, ForgeDiscussion, ForgeNote, ForgeProvider};
 use crate::error::{Result, WardenError};
-use crate::types::{DiffPosition, MergeRequest, Project, RemoteProjectInfo};
+use crate::types::{DiffPosition, MergeRequest, MrReviewStatus, Project, RemoteProjectInfo};
 
 const PER_PAGE: u32 = 100;
 const MAX_PAGES: u32 = 50;
@@ -329,6 +329,54 @@ impl ForgeProvider for GithubProvider {
         let route = format!("{}/issues/{iid}/labels", Self::repo_route(project)?);
         let _: serde_json::Value = self
             .post(&route, &serde_json::json!({ "labels": [label] }))
+            .await?;
+        Ok(())
+    }
+
+    async fn remove_label(&self, project: &Project, iid: u64, label: &str) -> Result<()> {
+        let route = format!(
+            "{}/issues/{iid}/labels/{}",
+            Self::repo_route(project)?,
+            encode_component(label)
+        );
+        let client = self.client()?;
+        let resp = match client
+            ._delete(route.as_str(), None::<&()>)
+            .await
+            .map_err(map_err)
+        {
+            Ok(r) => r,
+            // 404 = label was not on the PR.
+            Err(WardenError::Forge { status: 404, .. }) => return Ok(()),
+            Err(e) => return Err(e),
+        };
+        let status = resp.status().as_u16();
+        // 404 = label was not on the PR.
+        if (200..300).contains(&status) || status == 404 {
+            Ok(())
+        } else {
+            Err(WardenError::Forge {
+                status,
+                msg: format!("removing label {label} failed"),
+            })
+        }
+    }
+
+    /// GitHub: a pull request review with event APPROVE or REQUEST_CHANGES.
+    async fn set_review_status(
+        &self,
+        project: &Project,
+        iid: u64,
+        status: MrReviewStatus,
+        body: &str,
+    ) -> Result<()> {
+        let route = format!("{}/pulls/{iid}/reviews", Self::repo_route(project)?);
+        let event = match status {
+            MrReviewStatus::Approved => "APPROVE",
+            MrReviewStatus::ChangesRequested => "REQUEST_CHANGES",
+        };
+        let _: serde_json::Value = self
+            .post(&route, &serde_json::json!({ "event": event, "body": body }))
             .await?;
         Ok(())
     }

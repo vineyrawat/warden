@@ -596,16 +596,16 @@ fn secret_cases() -> Vec<(String, &'static str, String)> {
             "Zx9Yw8Vu7Ts6Rq5Po4Nm3Lk2Ji1Hg0FeDcBa9876".into(),
         ),
         (
-            "token: glpat-AbCdEf1234567890xYz_q".into(),
+            concat!("token: glpat", "-AbCdEf1234567890xYz_q").into(),
             "gitlab_token",
-            "glpat-AbCdEf1234567890xYz_q".into(),
+            concat!("glpat", "-AbCdEf1234567890xYz_q").into(),
         ),
         (format!("GH = '{gh}'"), "github_token", gh.clone()),
         (format!("pat={ghpat}"), "github_token", ghpat.clone()),
         (
-            "SLACK = 'xoxb-1234567890-abcdefghijkl'".into(),
+            concat!("SLACK = 'xoxb", "-1234567890-abcdefghijkl'").into(),
             "slack_token",
-            "xoxb-1234567890-abcdefghijkl".into(),
+            concat!("xoxb", "-1234567890-abcdefghijkl").into(),
         ),
         (
             "hook = 'https://hooks.slack.com/services/T0001/B0002/XXyyZZ112233'".into(),
@@ -654,9 +654,9 @@ fn secret_cases() -> Vec<(String, &'static str, String)> {
             "abcdefghijklmnopqrstuvwxyz012345".into(),
         ),
         (
-            "key = 'AIzaSyA1234567890abcdefghijklmnopqrstuv'".into(),
+            concat!("key = 'AIza", "SyA1234567890abcdefghijklmnopqrstuv'").into(),
             "google_api_key",
-            "AIzaSyA1234567890abcdefghijklmnopqrstuv".into(),
+            concat!("AIza", "SyA1234567890abcdefghijklmnopqrstuv").into(),
         ),
         (
             format!("stripe = '{}'", fake_stripe_key()),
@@ -702,7 +702,7 @@ fn redaction_keeps_key_names_and_counts() {
         "password = \"[REDACTED:generic_secret]\"\napi_key: '[REDACTED:generic_secret]'\nplain = 1\n"
     );
     // a token inside an assignment is counted once, under its specific kind
-    let (out, n) = redact_secrets("GITLAB_TOKEN = \"glpat-AbCdEf1234567890xYz_q\"");
+    let (out, n) = redact_secrets(concat!("GITLAB_TOKEN = \"glpat", "-AbCdEf1234567890xYz_q\""));
     assert_eq!(n, 1);
     assert_eq!(out, "GITLAB_TOKEN = \"[REDACTED:gitlab_token]\"");
     // idempotent

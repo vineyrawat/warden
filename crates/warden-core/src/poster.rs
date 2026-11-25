@@ -15,17 +15,43 @@ use serde_json::{json, Value};
 use ts_rs::TS;
 
 use crate::checks::redact_secrets;
-use crate::config::PostingConfig;
+use crate::config::{MrStatusMode, PostingConfig};
 use crate::db::{format_ts, Db};
 use crate::error::{Result, WardenError};
 use crate::events::EventBus;
 use crate::forge::ForgeProvider;
 use crate::types::{
-    AppEvent, CiJob, CiStatus, Finding, FindingStatus, MergeRequest, Project, ReviewRun, Severity,
+    AppEvent, CiJob, CiStatus, Finding, FindingStatus, ForgeKind, MergeRequest, MrReviewStatus,
+    Project, ReviewRun, Severity,
 };
 
 /// Label added to the MR after Warden posted something.
 pub const REVIEWED_LABEL: &str = "ai-reviewed";
+/// Scoped labels for `posting.mr_status` (scoped `::` labels replace each other on GitLab Premium).
+pub const APPROVED_LABEL: &str = "warden::approved";
+pub const CHANGES_LABEL: &str = "warden::changes-requested";
+
+/// Changes requested when a posted or still pending finding (Draft/Approved) has one of the
+/// `request_changes_on` severities, or Claude's verdict is "request_changes"; otherwise approved.
+/// Dismissed and guardrail-rejected findings do not count.
+pub fn decide_mr_status(
+    run: &ReviewRun,
+    findings: &[Finding],
+    request_changes_on: &[Severity],
+) -> MrReviewStatus {
+    let serious = findings.iter().any(|f| {
+        matches!(
+            f.status,
+            FindingStatus::Posted | FindingStatus::Approved | FindingStatus::Draft
+        ) && request_changes_on.contains(&f.severity)
+    });
+    let verdict_changes = run.verdict.as_deref().map(str::trim) == Some("request_changes");
+    if serious || verdict_changes {
+        MrReviewStatus::ChangesRequested
+    } else {
+        MrReviewStatus::Approved
+    }
+}
 
 /// Prefix of a stored `forge_note_id` that is a plain note, not a resolvable discussion.
 pub const PLAIN_NOTE_PREFIX: &str = "note:";
@@ -300,7 +326,97 @@ impl Poster {
             audit_quiet(db, Some(run.id), payload).await;
         }
 
+        // ---- MR review status (opt-in) -------------------------------------------------------
+        if report.posted > 0 || summary_posted {
+            self.apply_mr_status(db, provider, project, mr, run, &posting)
+                .await;
+        }
+
         Ok(report)
+    }
+
+    /// Sets the MR's review status per `posting.mr_status` (no-op when off). Errors are audited
+    /// and raised as a notice, never returned: the notes are already posted.
+    pub async fn apply_mr_status(
+        &self,
+        db: &Db,
+        provider: &dyn ForgeProvider,
+        project: &Project,
+        mr: &MergeRequest,
+        run: &ReviewRun,
+        posting: &PostingConfig,
+    ) -> Option<MrReviewStatus> {
+        let cfg = &posting.mr_status;
+        if cfg.mode == MrStatusMode::Off {
+            return None;
+        }
+        let findings = db.list_findings(run.id).await.ok()?;
+        let status = decide_mr_status(run, &findings, &cfg.request_changes_on);
+        let (add, remove) = match status {
+            MrReviewStatus::Approved => (APPROVED_LABEL, CHANGES_LABEL),
+            MrReviewStatus::ChangesRequested => (CHANGES_LABEL, APPROVED_LABEL),
+        };
+        let mut errors: Vec<String> = Vec::new();
+        let use_labels = cfg.mode == MrStatusMode::Labels || project.forge == ForgeKind::Gitlab;
+        if cfg.mode == MrStatusMode::Review {
+            let body = match status {
+                MrReviewStatus::Approved => {
+                    "Warden found nothing blocking in this change.".to_string()
+                }
+                MrReviewStatus::ChangesRequested => format!(
+                    "Warden requests changes: see the {} note(s) above.",
+                    findings
+                        .iter()
+                        .filter(|f| matches!(
+                            f.status,
+                            FindingStatus::Posted | FindingStatus::Resolved
+                        ))
+                        .count()
+                ),
+            };
+            if let Err(e) = provider
+                .set_review_status(project, mr.iid, status, &body)
+                .await
+            {
+                errors.push(e.to_string());
+            }
+        }
+        if use_labels {
+            if let Err(e) = provider.remove_label(project, mr.iid, remove).await {
+                errors.push(e.to_string());
+            }
+            // GitLab "review" mode only needs the label for "changes requested" (approval is native).
+            let want_label =
+                cfg.mode == MrStatusMode::Labels || status == MrReviewStatus::ChangesRequested;
+            if want_label {
+                if let Err(e) = provider.add_label(project, mr.iid, add).await {
+                    errors.push(e.to_string());
+                }
+            } else if let Err(e) = provider.remove_label(project, mr.iid, add).await {
+                errors.push(e.to_string());
+            }
+        }
+        let outcome = if errors.is_empty() { "set" } else { "failed" };
+        audit_quiet(
+            db,
+            Some(run.id),
+            json!({
+                "kind": "mr_status", "run_id": run.id, "mr_iid": mr.iid,
+                "mode": cfg.mode, "status": status, "outcome": outcome, "errors": errors,
+            }),
+        )
+        .await;
+        if !errors.is_empty() {
+            self.events.emit(AppEvent::Notice {
+                level: "warn".into(),
+                message: format!(
+                    "Could not set the status of !{}: {}",
+                    mr.iid,
+                    errors.join("; ")
+                ),
+            });
+        }
+        Some(status)
     }
 
     /// Posts one finding. Returns (note id, fell back to file-level note, line-note error if any).
@@ -725,6 +841,95 @@ pub fn format_duration(ms: u64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn f(sev: Severity, status: FindingStatus) -> Finding {
+        Finding {
+            id: 1,
+            run_id: 1,
+            file: "a.py".into(),
+            line: 1,
+            side: "new".into(),
+            severity: sev,
+            category: "x".into(),
+            rule_id: None,
+            title: "t".into(),
+            body: "b".into(),
+            suggestion: None,
+            evidence: None,
+            confidence: 0.9,
+            source: "claude".into(),
+            status,
+            guardrail_reason: None,
+            fingerprint: "fp".into(),
+            forge_note_id: None,
+            position: None,
+        }
+    }
+
+    fn run(verdict: Option<&str>) -> ReviewRun {
+        ReviewRun {
+            verdict: verdict.map(Into::into),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn mr_status_decision() {
+        let on = [Severity::Blocker, Severity::Major];
+        // posted major -> changes requested
+        assert_eq!(
+            decide_mr_status(
+                &run(None),
+                &[f(Severity::Major, FindingStatus::Posted)],
+                &on
+            ),
+            MrReviewStatus::ChangesRequested
+        );
+        // only minors posted, approve verdict -> approved
+        assert_eq!(
+            decide_mr_status(
+                &run(Some("approve")),
+                &[f(Severity::Minor, FindingStatus::Posted)],
+                &on
+            ),
+            MrReviewStatus::Approved
+        );
+        // dismissed / rejected blockers do not count
+        assert_eq!(
+            decide_mr_status(
+                &run(None),
+                &[
+                    f(Severity::Blocker, FindingStatus::Dismissed),
+                    f(Severity::Blocker, FindingStatus::Rejected)
+                ],
+                &on
+            ),
+            MrReviewStatus::Approved
+        );
+        // a pending (draft) blocker still blocks approval
+        assert_eq!(
+            decide_mr_status(
+                &run(None),
+                &[f(Severity::Blocker, FindingStatus::Draft)],
+                &on
+            ),
+            MrReviewStatus::ChangesRequested
+        );
+        // Claude's verdict alone
+        assert_eq!(
+            decide_mr_status(&run(Some("request_changes")), &[], &on),
+            MrReviewStatus::ChangesRequested
+        );
+        // narrower threshold
+        assert_eq!(
+            decide_mr_status(
+                &run(None),
+                &[f(Severity::Major, FindingStatus::Posted)],
+                &[Severity::Blocker]
+            ),
+            MrReviewStatus::Approved
+        );
+    }
 
     #[test]
     fn durations() {

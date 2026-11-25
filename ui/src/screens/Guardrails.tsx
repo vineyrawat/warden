@@ -27,7 +27,7 @@ export { overridesFromDraft } from "@/components/guardrails/logic";
 
 type Tab = "posting" | "filters" | "rules";
 
-const POSTING_KEYS = ["mode", "autoSeverities", "autoPostConfidence", "maxNotes", "maxNotesPerHour", "summaryNote"];
+const POSTING_KEYS = ["mode", "autoSeverities", "autoPostConfidence", "maxNotes", "maxNotesPerHour", "summaryNote", "mrStatusMode", "requestChangesOn"];
 const FILTER_KEYS = ["minConfidence", "severityFloor", "nits", "focus", "ignorePaths", "extraInstructions"];
 
 /** Thin wrapper kept for the legacy `guardrails` route: header + project picker + panel. */

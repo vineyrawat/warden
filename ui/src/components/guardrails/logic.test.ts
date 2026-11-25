@@ -207,3 +207,21 @@ describe("custom rules", () => {
     expect(yaml).toContain("    severity: minor");
   });
 });
+
+describe("MR status setting", () => {
+  it("saves only the mr_status fields that changed", async () => {
+    const { patchOverrides, draftFrom, diffDraft } = await import("./logic");
+    const cfg = {
+      review: { min_confidence: 0.7, severity_floor: "minor", max_notes: 10, nits: false, focus: [], ignore_paths: [], extra_instructions: "" },
+      posting: { mode: "assist", summary_note: true, max_notes_per_hour: 30, auto_post: { severities: ["blocker"], min_confidence: 0.9 }, mr_status: { mode: "off", request_changes_on: ["blocker", "major"] } },
+      rules: [],
+      disabled_rules: [],
+    } as never;
+    const saved = draftFrom(cfg);
+    expect(saved.mrStatusMode).toBe("off");
+    const draft = { ...saved, mrStatusMode: "review" as const };
+    const changes = diffDraft(saved, draft);
+    expect(changes.map((c) => c.key)).toEqual(["mrStatusMode"]);
+    expect(patchOverrides({}, draft, changes, cfg)).toEqual({ posting: { mr_status: { mode: "review" } } });
+  });
+});

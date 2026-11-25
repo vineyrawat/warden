@@ -4,6 +4,8 @@ import { useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Segmented } from "@/components/segmented";
+import type { MrStatusMode } from "@/bindings/MrStatusMode";
 import type { PostingMode } from "@/bindings/PostingMode";
 import type { Severity } from "@/bindings/Severity";
 import { POSTING_MODES, SEVERITIES, capitalize, modeDescription, modeLabel } from "@/lib/format";
@@ -121,6 +123,51 @@ export function PostingTab({ draft, set, paused }: { draft: Draft; set: Set; pau
         <ControlRow label="Summary note" hint="One note on the MR with the findings table and CI results">
           <Switch checked={draft.summaryNote} onCheckedChange={(v) => set("summaryNote", v)} aria-label="Post summary note" />
         </ControlRow>
+      </section>
+
+      <section className="rounded-lg border bg-card px-3.5 py-3">
+        <h3 className="text-[12.5px] font-semibold">MR status after posting</h3>
+        <p className="mb-2 text-2xs text-muted-foreground">
+          Runs right after Warden posts notes. In Draft mode that only happens when you click Post. In Assist and Auto, a review with nothing to post can still approve the MR; it never requests changes without a note to point at.
+        </p>
+        <Segmented<MrStatusMode>
+          label="MR status after posting"
+          value={draft.mrStatusMode}
+          onChange={(v) => set("mrStatusMode", v)}
+          options={[
+            { value: "off", label: "Off" },
+            { value: "labels", label: "Labels" },
+            { value: "review", label: "Approve / request changes" },
+          ]}
+        />
+        <p className="mt-1.5 text-2xs leading-snug text-muted-foreground">
+          {draft.mrStatusMode === "off"
+            ? "The MR's status is left alone; only notes, the summary and the ai-reviewed label are posted."
+            : draft.mrStatusMode === "labels"
+              ? "Adds warden::approved or warden::changes-requested (and removes the other). Works on every GitLab and GitHub."
+              : "GitHub: submits an Approve or Request changes review. GitLab: approves the MR, or withdraws Warden's approval and adds warden::changes-requested (GitLab's API has no request-changes call). The token's user must be allowed to approve."}
+        </p>
+        <div className={cn("mt-2", draft.mrStatusMode === "off" && "pointer-events-none opacity-50")}>
+          <ControlRow label="Request changes when a note is" hint="A posted or still pending finding at these severities, or Claude's verdict, means changes requested; otherwise the MR is approved">
+            <div className="flex gap-1">
+              {SEVERITIES.map((sv) => {
+                const on = draft.requestChangesOn.includes(sv);
+                return (
+                  <button
+                    key={sv}
+                    type="button"
+                    aria-pressed={on}
+                    disabled={draft.mrStatusMode === "off"}
+                    onClick={() => set("requestChangesOn", sortSeverities(on ? draft.requestChangesOn.filter((x) => x !== sv) : [...draft.requestChangesOn, sv]))}
+                    className={cn("rounded-full border px-2 py-0.5 text-2xs font-medium", on ? "border-primary bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-accent")}
+                  >
+                    {capitalize(sv)}
+                  </button>
+                );
+              })}
+            </div>
+          </ControlRow>
+        </div>
       </section>
     </div>
   );

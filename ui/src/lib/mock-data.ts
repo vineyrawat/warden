@@ -93,6 +93,7 @@ export function defaultConfig(): WardenConfig {
       auto_post: { severities: ["blocker", "major"], min_confidence: 0.85 },
       summary_note: true,
       max_notes_per_hour: 30,
+      mr_status: { mode: "off", request_changes_on: ["blocker", "major"] },
     },
   };
 }

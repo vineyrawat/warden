@@ -701,3 +701,57 @@ async fn project_details_and_protected_branches() {
         warden_core::discovery::basic_auth_header("oauth2", TOKEN)
     );
 }
+
+#[tokio::test]
+async fn review_status_approves_once_and_unapproves() {
+    use warden_core::MrReviewStatus;
+    let server = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/api/v4/user"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"username": "warden-bot"})))
+        .mount(&server)
+        .await;
+    // Not yet approved by the bot -> approve is called.
+    Mock::given(method("GET"))
+        .and(path(format!("{PROJ}/merge_requests/7/approvals")))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({"approved_by": []})))
+        .mount(&server)
+        .await;
+    Mock::given(method("POST"))
+        .and(path(format!("{PROJ}/merge_requests/7/approve")))
+        .respond_with(ResponseTemplate::new(201).set_body_json(json!({})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    // Already approved by the bot -> unapprove on "changes requested".
+    Mock::given(method("GET"))
+        .and(path(format!("{PROJ}/merge_requests/8/approvals")))
+        .respond_with(
+            ResponseTemplate::new(200)
+                .set_body_json(json!({"approved_by": [{"user": {"username": "warden-bot"}}]})),
+        )
+        .mount(&server)
+        .await;
+    Mock::given(method("POST"))
+        .and(path(format!("{PROJ}/merge_requests/8/unapprove")))
+        .respond_with(ResponseTemplate::new(201).set_body_json(json!({})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    Mock::given(method("PUT"))
+        .and(path(format!("{PROJ}/merge_requests/8")))
+        .and(body_string_contains("remove_labels=warden%3A%3Aapproved"))
+        .respond_with(ResponseTemplate::new(200).set_body_json(json!({})))
+        .expect(1)
+        .mount(&server)
+        .await;
+    let p = provider(&server);
+    let proj = project(&server.uri());
+    p.set_review_status(&proj, 7, MrReviewStatus::Approved, "ok")
+        .await
+        .unwrap();
+    p.set_review_status(&proj, 8, MrReviewStatus::ChangesRequested, "fix")
+        .await
+        .unwrap();
+    p.remove_label(&proj, 8, "warden::approved").await.unwrap();
+}

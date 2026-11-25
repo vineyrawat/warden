@@ -1,5 +1,6 @@
 // Pure helpers for the Guardrails panel: draft <-> overrides, change list, rule catalogue
 // (source, filtering, dismissed-rate advice) and live-preview summaries. Unit tested in logic.test.ts.
+import type { MrStatusMode } from "@/bindings/MrStatusMode";
 import type { PostingMode } from "@/bindings/PostingMode";
 import type { RuleConfig } from "@/bindings/RuleConfig";
 import type { RuleKind } from "@/bindings/RuleKind";
@@ -25,6 +26,9 @@ export type Draft = {
   disabled: string[];
   /** Free text appended to every review prompt (`review.extra_instructions`). */
   extraInstructions: string;
+  /** `posting.mr_status`: what happens to the MR's status after posting. */
+  mrStatusMode: MrStatusMode;
+  requestChangesOn: Severity[];
 };
 
 export function draftFrom(cfg: MergedConfig, projectMode?: PostingMode | null): Draft {
@@ -42,6 +46,8 @@ export function draftFrom(cfg: MergedConfig, projectMode?: PostingMode | null): 
     ignorePaths: [...cfg.review.ignore_paths],
     disabled: [...(cfg.disabled_rules ?? [])].sort(),
     extraInstructions: cfg.review.extra_instructions ?? "",
+    mrStatusMode: cfg.posting.mr_status?.mode ?? "off",
+    requestChangesOn: sortSeverities(cfg.posting.mr_status?.request_changes_on ?? ["blocker", "major"]),
   };
 }
 
@@ -72,12 +78,15 @@ export function overridesFromDraft(d: Draft, cfg: MergedConfig): ProjectOverride
       summary_note: d.summaryNote,
       max_notes_per_hour: d.maxNotesPerHour,
       auto_post: { ...cfg.posting.auto_post, severities: sortSeverities(d.autoSeverities), min_confidence: round2(d.autoPostConfidence) },
+      mr_status: { mode: d.mrStatusMode, request_changes_on: sortSeverities(d.requestChangesOn) },
     },
     disabled_rules: [...d.disabled].sort(),
   };
 }
 
 export type Change = { key: string; label: string; from: string; to: string };
+
+export const MR_STATUS_LABEL: Record<MrStatusMode, string> = { off: "Off", labels: "Labels", review: "Approve / request changes" };
 
 /**
  * Stored overrides with ONLY the changed fields written on top. Fields you did not touch stay out of
@@ -104,6 +113,9 @@ export function patchOverrides(stored: ProjectOverrides | null | undefined, d: D
     ignorePaths: () => (section("review").ignore_paths = fr.ignore_paths),
     rules: () => (out.disabled_rules = full.disabled_rules),
     extraInstructions: () => (section("review").extra_instructions = fr.extra_instructions),
+    mrStatusMode: () => (section("posting").mr_status = { ...((section("posting").mr_status as object) ?? {}), mode: (fp.mr_status as Record<string, unknown>).mode }),
+    requestChangesOn: () =>
+      (section("posting").mr_status = { ...((section("posting").mr_status as object) ?? {}), request_changes_on: (fp.mr_status as Record<string, unknown>).request_changes_on }),
   };
   keys.forEach((k) => map[k]?.());
   return out as ProjectOverrides;
@@ -132,6 +144,8 @@ export function diffDraft(saved: Draft, draft: Draft): Change[] {
   if (!sameList(saved.focus, draft.focus)) out.push({ key: "focus", label: "Focus areas", from: fmtList(saved.focus), to: fmtList(draft.focus) });
   if (!sameList(saved.ignorePaths, draft.ignorePaths))
     out.push({ key: "ignorePaths", label: "Ignored paths", from: fmtList(saved.ignorePaths), to: fmtList(draft.ignorePaths) });
+  add("mrStatusMode", "MR status after posting", MR_STATUS_LABEL[saved.mrStatusMode], MR_STATUS_LABEL[draft.mrStatusMode]);
+  add("requestChangesOn", "Request changes on", fmtList(sortSeverities(saved.requestChangesOn)), fmtList(sortSeverities(draft.requestChangesOn)));
   if (saved.extraInstructions.trim() !== draft.extraInstructions.trim())
     out.push({ key: "extraInstructions", label: "Review instructions", from: saved.extraInstructions.trim() ? "set" : "none", to: draft.extraInstructions.trim() ? "edited" : "none" });
   const was = new Set(saved.disabled);

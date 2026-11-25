@@ -17,7 +17,9 @@ use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
 use crate::error::{Result, WardenError};
-use crate::types::{DiffPosition, ForgeKind, MergeRequest, Project, RemoteProjectInfo};
+use crate::types::{
+    DiffPosition, ForgeKind, MergeRequest, MrReviewStatus, Project, RemoteProjectInfo,
+};
 
 pub use github::GithubProvider;
 pub use gitlab::GitlabProvider;
@@ -98,6 +100,22 @@ pub trait ForgeProvider: Send + Sync {
         discussion_id: &str,
     ) -> Result<()>;
     async fn add_label(&self, project: &Project, iid: u64, label: &str) -> Result<()>;
+    /// Removes a label; a label that is not on the MR is not an error. Default: no-op.
+    async fn remove_label(&self, _project: &Project, _iid: u64, _label: &str) -> Result<()> {
+        Ok(())
+    }
+    /// Sets the forge's own review state (GitHub review event / GitLab approve-unapprove).
+    async fn set_review_status(
+        &self,
+        _project: &Project,
+        _iid: u64,
+        _status: MrReviewStatus,
+        _body: &str,
+    ) -> Result<()> {
+        Err(WardenError::Config(
+            "this forge does not support setting the review status".into(),
+        ))
+    }
 }
 
 /// Builds the provider for a project's forge. The token is held only by the provider (never logged,

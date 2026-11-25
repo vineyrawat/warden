@@ -14,7 +14,7 @@ use serde::Deserialize;
 
 use super::{truncate_msg, ForgeDiscussion, ForgeNote, ForgeProvider};
 use crate::error::{Result, WardenError};
-use crate::types::{DiffPosition, MergeRequest, Project, RemoteProjectInfo};
+use crate::types::{DiffPosition, MergeRequest, MrReviewStatus, Project, RemoteProjectInfo};
 
 /// Items per page for list endpoints (GitLab max is 100).
 const PER_PAGE: u32 = 100;
@@ -305,6 +305,55 @@ impl ForgeProvider for GitlabProvider {
         .await?;
         Ok(())
     }
+
+    async fn remove_label(&self, project: &Project, iid: u64, label: &str) -> Result<()> {
+        self.send(
+            self.request(Method::PUT, &Self::mr_path(project, iid))
+                .form(&[("remove_labels", label)]),
+        )
+        .await?;
+        Ok(())
+    }
+
+    /// GitLab: approve, or withdraw Warden's approval. "Request changes" has no REST call, so the
+    /// poster adds the `warden::changes-requested` label alongside.
+    async fn set_review_status(
+        &self,
+        project: &Project,
+        iid: u64,
+        status: MrReviewStatus,
+        _body: &str,
+    ) -> Result<()> {
+        let me = self.whoami().await?;
+        let approvals: GlApprovals = self
+            .json(self.request(
+                Method::GET,
+                &format!("{}/approvals", Self::mr_path(project, iid)),
+            ))
+            .await?;
+        let approved_by_me = approvals
+            .approved_by
+            .iter()
+            .any(|a| a.user.username.eq_ignore_ascii_case(&me));
+        match (status, approved_by_me) {
+            (MrReviewStatus::Approved, false) => {
+                self.send(self.request(
+                    Method::POST,
+                    &format!("{}/approve", Self::mr_path(project, iid)),
+                ))
+                .await?;
+            }
+            (MrReviewStatus::ChangesRequested, true) => {
+                self.send(self.request(
+                    Method::POST,
+                    &format!("{}/unapprove", Self::mr_path(project, iid)),
+                ))
+                .await?;
+            }
+            _ => {}
+        }
+        Ok(())
+    }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -448,6 +497,18 @@ struct GlProject {
     web_url: Option<String>,
     #[serde(default)]
     http_url_to_repo: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct GlApprovals {
+    #[serde(default)]
+    approved_by: Vec<GlApprover>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct GlApprover {
+    #[serde(default)]
+    user: GlAuthor,
 }
 
 #[derive(Debug, Default, Deserialize)]

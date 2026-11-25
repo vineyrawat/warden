@@ -968,6 +968,26 @@ disables rules, widens ignore_paths, enables auto-posting, adds CI commands or a
         // ---- 6. Posting --------------------------------------------------------------------
         let poster = Poster::new(self.events.clone()).with_posting(cfg.posting.clone());
         if let Some(p) = &provider {
+            // A clean review in Assist/Auto posts nothing, but can still approve the MR when
+            // `posting.mr_status` is on. Never "request changes" without a note to point at, and
+            // never act on its own in Draft mode.
+            if cfg.posting.mode != PostingMode::Draft
+                && auto_ids.is_empty()
+                && !ci_failed
+                && cfg.posting.mr_status.mode != crate::config::MrStatusMode::Off
+            {
+                let findings = self.db.list_findings(run.id).await?;
+                if crate::poster::decide_mr_status(
+                    run,
+                    &findings,
+                    &cfg.posting.mr_status.request_changes_on,
+                ) == crate::types::MrReviewStatus::Approved
+                {
+                    poster
+                        .apply_mr_status(&self.db, p.as_ref(), project, mr, run, &cfg.posting)
+                        .await;
+                }
+            }
             if cfg.posting.mode != PostingMode::Draft && (!auto_ids.is_empty() || ci_failed) {
                 self.set_status(run, RunStatus::Posting).await?;
                 match poster

@@ -802,3 +802,12 @@ pub struct RuleTestResult {
     /// Why nothing could be tested (e.g. Claude or semgrep rules), when set.
     pub note: Option<String>,
 }
+
+/// Review state Warden sets on a merge request after posting.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[serde(rename_all = "snake_case")]
+#[ts(export, export_to = "../../ui/src/bindings/")]
+pub enum MrReviewStatus {
+    Approved,
+    ChangesRequested,
+}

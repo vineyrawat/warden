@@ -32,6 +32,9 @@ your guardrails.
   Claude, a regex run on added lines, or a semgrep file. Test a pattern on pasted code or on a recent
   MR's diff before saving, change the severity or scope of built-in and `.warden.yml` rules, add
   review instructions, and copy your rules as a `.warden.yml` block to commit for the team.
+- **MR status after posting (optional):** mark the merge request once notes are posted, either
+  with `warden::approved` / `warden::changes-requested` labels or with the forge's own review state
+  (GitHub Approve / Request changes; GitLab approve or withdraw approval). Off by default.
 - **Posting modes:** Draft (you approve every note), Assist (confident blockers and majors post on
   their own) or Auto.
 - **Add projects in two clicks:** Warden lists the projects your token can see and finds your existing
@@ -134,6 +137,19 @@ Settings → Projects → (project) → Guardrails:
   - File glob and severity for each rule. Built-in and `.warden.yml` rules can have their severity
     and file scope changed locally; **Reset** restores them.
 
+**MR status after posting** (Posting tab) is off by default:
+
+| Setting | GitHub | GitLab |
+|---|---|---|
+| Labels | adds `warden::approved` or `warden::changes-requested` | same |
+| Approve / request changes | submits an Approve or Request changes review | approves the MR, or withdraws Warden's approval and adds `warden::changes-requested` (GitLab's API has no request-changes call) |
+
+Changes are requested when a posted or still pending note has one of the chosen severities
+(blocker and major by default) or Claude's verdict asks for changes; otherwise the MR is approved.
+In Draft mode this only happens when you click Post. In Assist and Auto, a review with nothing to
+post can still approve the MR, but Warden never requests changes without a note to point at. The
+token's user needs permission to approve.
+
 Custom rules are stored per project on your Mac and get IDs like `CR-001`. **Copy as .warden.yml**
 puts them on the clipboard as a `rules:` block so you can commit them for your team.
 
@@ -174,6 +190,9 @@ posting:
   auto_post: { severities: [blocker, major], min_confidence: 0.85 }
   summary_note: true
   max_notes_per_hour: 30
+  mr_status:
+    mode: off                    # off | labels | review
+    request_changes_on: [blocker, major]
 ```
 
 Placeholders in `run`: `{changed_files}`, `{changed_py}`, `{changed_ts}`, `{base_sha}`, `{head_sha}`.

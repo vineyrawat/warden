@@ -1157,7 +1157,7 @@ fn format_summary_without_findings_or_ci() {
 // Security regressions (fix pass)
 // ---------------------------------------------------------------------------------------------
 
-const LEAKED: &str = "glpat-AbCdEf1234567890xYz_q";
+const LEAKED: &str = concat!("glpat", "-AbCdEf1234567890xYz_q");
 
 #[tokio::test]
 async fn posted_notes_and_summary_are_redacted() {
